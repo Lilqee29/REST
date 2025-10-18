@@ -12,7 +12,7 @@ const StoreContextProvider = (props) => {
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState("");
 
-  const url = "http://localhost:5000"; // backend URL
+  const url = "https://restaurant-backend-06ce.onrender.com"; // backend URL
 
   // ---- CART LOGIC ----
   const addToCart = async (itemId) => {

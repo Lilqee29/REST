@@ -19,7 +19,7 @@ export default function Menu() {
     const fetchMenu = async () => {
       try {
         setLoading(true);
-        const res = await axios.get("http://localhost:5000/api/food/list");
+        const res = await axios.get("https://restaurant-backend-06ce.onrender.com/api/food/list");
         if (res.data.success) {
           setMenuItems(res.data.data);
         }
@@ -138,7 +138,7 @@ export default function Menu() {
                 {/* Image */}
                 <div className="relative w-full h-48 sm:h-52 md:h-56 overflow-hidden">
                   <img
-                    src={item.image ? `http://localhost:5000/images/${item.image}` : assets.food1}
+                    src={item.image ? `https://restaurant-backend-06ce.onrender.com/images/${item.image}` : assets.food1}
                     alt={item.name}
                     className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
                     onError={(e) => (e.target.src = assets.food1)}

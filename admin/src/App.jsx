@@ -15,7 +15,7 @@ import AdminNewsletter from "./pages/Newsletter/AdminNewsletter";
 import AdminAnalytics from "./pages/AnalyticsDashoboard/AdminAnalytics";
 
 const App = () => {
-  const url = "http://localhost:5000";
+  const url = "https://restaurant-backend-06ce.onrender.com";
   return (
     <div>
       <ToastContainer />
