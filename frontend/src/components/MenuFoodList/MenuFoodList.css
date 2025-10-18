@@ -1,0 +1,115 @@
+/* ===== Food Display Container ===== */
+.food-display {
+  margin-top: 40px;
+  padding: 0 15px;
+  max-width: 1200px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Heading */
+.food-display h2 {
+  font-size: clamp(24px, 4vw, 36px);
+  font-weight: 700;
+  color: tomato;
+  text-align: center;
+  margin-bottom: 30px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+/* Food list grid */
+.food-display-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, auto)); /* auto prevents stretching */
+  gap: 25px;
+  margin-top: 20px;
+  justify-content: center; /* center items horizontally */
+  transition: all 0.3s ease;
+}
+
+/* Single item: stays small and centered 
+.food-display-list:has(.menu-item:only-child) {
+  justify-content: start; /* center single card */
+/* }* */
+
+.food-display-list:has(.menu-item:only-child) .menu-item {
+  width: 240px;      /* keep same size as normal card */
+  max-width: 100%;   /* responsive */
+  padding: 18px;
+  transform: none;   /* no scale */
+  
+}
+
+
+/* Food card */
+.menu-item {
+  background: #fff;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 18px;
+  cursor: pointer;
+  position: relative;
+  width: 240px;       /* normal card width */
+  max-width: 100%;    /* responsive */
+}
+
+/* Hover effect */
+.menu-item:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* Food image */
+.menu-item img {
+  width: 100%;
+  max-height: 150px;
+  object-fit: cover;
+  border-radius: 14px;
+  margin-bottom: 15px;
+  transition: transform 0.3s ease;
+}
+
+.menu-item:hover img {
+  transform: scale(1.03);
+}
+
+/* Food name */
+.menu-item h3 {
+  font-size: 20px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+/* Food description */
+.menu-item p {
+  font-size: 14px;
+  color: #666;
+  text-align: center;
+  margin-bottom: 12px;
+  line-height: 1.4;
+}
+
+/* Price */
+.menu-item .price {
+  font-weight: 700;
+  font-size: 18px;
+  color: tomato;
+  margin-top: auto; /* pushes price to bottom */
+}
+
+/* No results message */
+.no-results {
+  grid-column: 1 / -1;
+  text-align: center;
+  font-size: 18px;
+  color: #999;
+  margin-top: 40px;
+}

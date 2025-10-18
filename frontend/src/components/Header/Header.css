@@ -1,0 +1,129 @@
+/* =======================
+   Header Container
+======================= */
+.header {
+    height: 36vw;
+    margin: 13px auto 15px auto;       /* compact top/bottom spacing */
+    position: relative;
+    border-radius: 15px;
+    overflow: hidden;
+
+    /* Background Image */
+    background: url('/header_img.png') no-repeat center center;
+    background-size: cover;  
+    
+    z-index: 1;           /* cover the entire header */
+}
+
+/* Overlay for better text readability */
+.header::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-color: rgba(0, 0, 0, 0.25);
+    
+    z-index: 2; 
+}
+
+/* =======================
+   Header Content
+======================= */
+.header-contents {
+    position: absolute;
+    bottom: 10%;
+    left: 6vw;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5vw;
+    max-width: 50%;
+    animation: fadeIn 1.5s ease-in-out;
+    
+    z-index: 3; 
+}
+
+/* Heading */
+.header-contents h2 {
+    font-weight: 500;
+    color: #fff;
+    font-size: clamp(22px, 4.5vw, 48px); /* responsive size */
+    line-height: 1.2;
+}
+
+/* Paragraph */
+.header-contents p {
+    color: #fff;
+    font-size: clamp(12px, 1vw, 18px);
+    line-height: 1.4;
+}
+
+/* Button */
+.header-contents button {
+    border: none;
+    color: #747474;
+    font-weight: 500;
+    padding: 0.8vw 2vw;
+    background-color: #fff;
+    font-size: clamp(13px, 1vw, 16px);
+    border-radius: 50px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.header-contents button:hover {
+    background-color: tomato;
+    color: #000;
+    font-weight: bold;
+    transform: scale(1.05); /* subtle grow effect */
+}
+
+/* =======================
+   Responsive Adjustments
+======================= */
+
+/* Medium screens */
+@media (max-width: 1050px) {
+    .header-contents {
+        max-width: 45%;
+        left: 5vw;
+    }
+
+    .header-contents h2 {
+        font-size: clamp(20px, 4vw, 42px);
+    }
+
+    .header-contents p {
+        font-size: clamp(11px, 0.9vw, 16px);
+    }
+
+    .header-contents button {
+        padding: 1vw 2.5vw;
+        font-size: clamp(12px, 0.9vw, 15px);
+    }
+}
+
+/* Small screens */
+@media (max-width: 750px) {
+    .header {
+        height: 50vw; /* taller for mobile */
+    }
+
+    .header-contents {
+        max-width: 65%;
+        bottom: 8%;
+        left: 5vw;
+    }
+
+    .header-contents p {
+        display: none; /* hide description for small screens */
+    }
+
+    .header-contents h2 {
+        font-size: clamp(18px, 5vw, 28px);
+    }
+
+    .header-contents button {
+        padding: 2vw 4vw;
+        font-size: clamp(14px, 3vw, 16px);
+    }
+}

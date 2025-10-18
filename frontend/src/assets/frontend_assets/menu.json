@@ -1,0 +1,428 @@
+{
+  "categories": [
+{
+  "id": "combos",
+  "name": "Combos",
+  "items": [
+    {
+      "id": "combo-royal",
+      "name": "Combo Royal",
+      "description": "Kebab Royal + Frites + Boisson",
+      "price": 12.90,
+      "image": "https://i.postimg.cc/rF25XmG9/image.png",
+      "popular": true,
+      "type": "combo",
+      "mainItem": "kebab-royal",
+      "sides": ["frites"],
+      "drink": "coca-cola",
+      "savings": 2.10,
+      "ingredients": ["Kebab Royal", "Frites", "Boisson"],
+      "allergens": ["Gluten", "Lait"],
+      "customizations": {
+        "meat": {
+          "options": ["Bœuf", "Poulet", "Agneau", "Mixte"],
+          "default": "Bœuf"
+        },
+        "sauce": {
+          "options": ["Blanche", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+          "default": "Blanche"
+        },
+        "vegetables": {
+          "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+          "default": ["Salade", "Tomate"]
+        },
+        "extras": {
+          "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+          "prices": {
+            "Fromage": 1.00,
+            "Œuf": 1.50,
+            "Frites dans le kebab": 2.00
+          }
+        },
+        "drink": {
+          "options": ["Coca-Cola", "Sprite", "Fanta", "Eau"],
+          "default": "Coca-Cola"
+        }
+      }
+    },
+    {
+      "id": "combo-chicken",
+      "name": "Combo Poulet",
+      "description": "Kebab Poulet + Frites + Boisson",
+      "price": 11.90,
+      "image": "https://i.postimg.cc/rF25XmG9/image.png",
+      "popular": true,
+      "type": "combo",
+      "mainItem": "kebab-poulet",
+      "sides": ["frites"],
+      "drink": "coca-cola",
+      "savings": 1.80,
+      "ingredients": ["Kebab Poulet", "Frites", "Boisson"],
+      "allergens": ["Gluten", "Lait"],
+      "customizations": {
+        "meat": {
+          "options": ["Poulet", "Bœuf", "Agneau", "Mixte"],
+          "default": "Poulet"
+        },
+        "sauce": {
+          "options": ["Yaourt", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+          "default": "Yaourt"
+        },
+        "vegetables": {
+          "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+          "default": ["Salade", "Tomate"]
+        },
+        "extras": {
+          "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+          "prices": {
+            "Fromage": 1.00,
+            "Œuf": 1.50,
+            "Frites dans le kebab": 2.00
+          }
+        },
+        "drink": {
+          "options": ["Coca-Cola", "Sprite", "Fanta", "Eau"],
+          "default": "Coca-Cola"
+        }
+      }
+    },
+    {
+      "id": "combo-veggie",
+      "name": "Combo Végétarien",
+      "description": "Kebab Végétarien + Frites + Boisson",
+      "price": 10.90,
+      "image": "https://i.postimg.cc/rF25XmG9/image.png",
+      "type": "combo",
+      "mainItem": "kebab-veggie",
+      "sides": ["frites"],
+      "drink": "coca-cola",
+      "savings": 1.60,
+      "ingredients": ["Kebab Végétarien", "Frites", "Boisson"],
+      "allergens": ["Gluten", "Sésame"],
+      "customizations": {
+        "meat": {
+          "options": ["Falafels", "Halloumi", "Légumes grillés"],
+          "default": "Falafels"
+        },
+        "sauce": {
+          "options": ["Tahini", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+          "default": "Tahini"
+        },
+        "vegetables": {
+          "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte", "Avocat"],
+          "default": ["Salade", "Tomate", "Avocat"]
+        },
+        "extras": {
+          "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+          "prices": {
+            "Fromage": 1.00,
+            "Œuf": 1.50,
+            "Frites dans le kebab": 2.00
+          }
+        },
+        "drink": {
+          "options": ["Coca-Cola", "Sprite", "Fanta", "Eau"],
+          "default": "Coca-Cola"
+        }
+      }
+    },
+    {
+      "id": "combo-family",
+      "name": "Combo Famille",
+      "description": "2 Kebabs + 2 Frites + 2 Boissons + 1 Dessert",
+      "price": 24.90,
+      "image": "https://i.postimg.cc/rF25XmG9/image.png",
+      "popular": true,
+      "type": "combo",
+      "mainItem": "kebab-royal",
+      "mainItem2": "kebab-poulet",
+      "sides": ["frites", "frites"],
+      "drink": "coca-cola",
+      "drink2": "sprite",
+      "dessert": "baklava",
+      "savings": 4.20,
+      "ingredients": ["2 Kebabs", "2 Frites", "2 Boissons", "Dessert"],
+      "allergens": ["Gluten", "Lait", "Fruits à coque"],
+      "customizations": {
+        "kebab1": {
+          "meat": {
+            "options": ["Bœuf", "Poulet", "Agneau", "Mixte"],
+            "default": "Bœuf"
+          },
+          "sauce": {
+            "options": ["Blanche", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+            "default": "Blanche"
+          },
+          "vegetables": {
+            "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+            "default": ["Salade", "Tomate"]
+          },
+          "extras": {
+            "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+            "prices": {
+              "Fromage": 1.00,
+              "Œuf": 1.50,
+              "Frites dans le kebab": 2.00
+            }
+          }
+        },
+        "kebab2": {
+          "meat": {
+            "options": ["Poulet", "Bœuf", "Agneau", "Mixte"],
+            "default": "Poulet"
+          },
+          "sauce": {
+            "options": ["Yaourt", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+            "default": "Yaourt"
+          },
+          "vegetables": {
+            "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+            "default": ["Salade", "Tomate"]
+          },
+          "extras": {
+            "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+            "prices": {
+              "Fromage": 1.00,
+              "Œuf": 1.50,
+              "Frites dans le kebab": 2.00
+            }
+          }
+        },
+        "drinks": {
+          "options": ["Coca-Cola", "Sprite", "Fanta", "Eau"],
+          "default1": "Coca-Cola",
+          "default2": "Sprite"
+        }
+      }
+    }
+  ]
+}
+,
+    {
+      "id": "kebabs",
+      "name": "Kebabs",
+      "items": [
+        {
+          "id": "kebab-royal",
+          "name": "Kebab Royal",
+          "description": "Viande de bœuf, salade fraîche, sauce spéciale",
+          "price": 8.50,
+          "image": "https://i.postimg.cc/rF25XmG9/image.png",
+          "popular": true,
+          "type": "kebab",
+          "customizations": {
+            "meat": {
+              "options": ["Bœuf", "Poulet", "Agneau", "Mixte"],
+              "default": "Bœuf"
+            },
+            "sauce": {
+              "options": ["Blanche", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+              "default": "Blanche"
+            },
+            "vegetables": {
+              "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+              "default": ["Salade", "Tomate"]
+            },
+            "extras": {
+              "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+              "prices": {
+                "Fromage": 1.00,
+                "Œuf": 1.50,
+                "Frites dans le kebab": 2.00
+              }
+            }
+          },
+          "ingredients": ["Pain pita", "Viande de bœuf", "Salade", "Tomate", "Sauce blanche"],
+          "allergens": ["Gluten", "Lait"]
+        },
+        {
+          "id": "kebab-poulet",
+          "name": "Kebab Poulet",
+          "description": "Poulet grillé, légumes frais, sauce au yaourt",
+          "price": 7.50,
+          "image": "https://i.postimg.cc/rF25XmG9/image.png",
+          "popular": true,
+          "type": "kebab",
+          "customizations": {
+            "meat": {
+              "options": ["Poulet", "Bœuf", "Agneau", "Mixte"],
+              "default": "Poulet"
+            },
+            "sauce": {
+              "options": ["Yaourt", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+              "default": "Yaourt"
+            },
+            "vegetables": {
+              "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte"],
+              "default": ["Salade", "Tomate"]
+            },
+            "extras": {
+              "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+              "prices": {
+                "Fromage": 1.00,
+                "Œuf": 1.50,
+                "Frites dans le kebab": 2.00
+              }
+            }
+          },
+          "ingredients": ["Pain pita", "Poulet grillé", "Salade", "Tomate", "Sauce yaourt"],
+          "allergens": ["Gluten", "Lait"]
+        },
+        {
+          "id": "kebab-veggie",
+          "name": "Kebab Végétarien",
+          "description": "Falafels, légumes frais, sauce tahini",
+          "price": 6.50,
+          "image": "https://i.postimg.cc/rF25XmG9/image.png",
+          "type": "kebab",
+          "customizations": {
+            "meat": {
+              "options": ["Falafels", "Halloumi", "Légumes grillés"],
+              "default": "Falafels"
+            },
+            "sauce": {
+              "options": ["Tahini", "Harissa", "Ketchup", "Mayonnaise", "Sans sauce"],
+              "default": "Tahini"
+            },
+            "vegetables": {
+              "options": ["Salade", "Tomate", "Oignon", "Concombre", "Carotte", "Avocat"],
+              "default": ["Salade", "Tomate", "Avocat"]
+            },
+            "extras": {
+              "options": ["Fromage", "Œuf", "Frites dans le kebab"],
+              "prices": {
+                "Fromage": 1.00,
+                "Œuf": 1.50,
+                "Frites dans le kebab": 2.00
+              }
+            }
+          },
+          "ingredients": ["Pain pita", "Falafels", "Salade", "Tomate", "Avocat", "Sauce tahini"],
+          "allergens": ["Gluten", "Sésame"]
+        }
+      ]
+    },
+    {
+      "id": "boissons",
+      "name": "Boissons",
+      "items": [
+        {
+          "id": "coca-cola",
+          "name": "Coca-Cola",
+          "description": "Soda 33cl",
+          "price": 2.50,
+          "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=500",
+          "type": "drink",
+          "sizes": {
+            "33cl": 2.50,
+            "50cl": 3.00,
+            "1L": 4.50
+          },
+          "ingredients": ["Eau", "Sucre", "Gaz carbonique", "Colorant"],
+          "allergens": []
+        },
+        {
+          "id": "sprite",
+          "name": "Sprite",
+          "description": "Limonade 33cl",
+          "price": 2.50,
+          "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=500",
+          "type": "drink",
+          "sizes": {
+            "33cl": 2.50,
+            "50cl": 3.00,
+            "1L": 4.50
+          },
+          "ingredients": ["Eau", "Sucre", "Gaz carbonique", "Arômes naturels"],
+          "allergens": []
+        },
+        {
+          "id": "fanta",
+          "name": "Fanta",
+          "description": "Soda orange 33cl",
+          "price": 2.50,
+          "image": "https://i.postimg.cc/HksKG8Z6/image.png",
+          "type": "drink",
+          "sizes": {
+            "33cl": 2.50,
+            "50cl": 3.00,
+            "1L": 4.50
+          },
+          "ingredients": ["Eau", "Sucre", "Gaz carbonique", "Arôme orange"],
+          "allergens": []
+        },
+        {
+          "id": "eau",
+          "name": "Eau minérale",
+          "description": "Eau 50cl",
+          "price": 1.50,
+          "image": "https://images.unsplash.com/photo-1629203851122-3726ecdf080e?w=500",
+          "type": "drink",
+          "sizes": {
+            "50cl": 1.50,
+            "1L": 2.50
+          },
+          "ingredients": ["Eau minérale naturelle"],
+          "allergens": []
+        }
+      ]
+    },
+    {
+      "id": "accompagnements",
+      "name": "Accompagnements",
+      "items": [
+        {
+          "id": "frites",
+          "name": "Frites",
+          "description": "Frites maison croustillantes",
+          "price": 3.50,
+          "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
+          "type": "side",
+          "sizes": {
+            "Petite": 2.50,
+            "Moyenne": 3.50,
+            "Grande": 4.50
+          },
+          "ingredients": ["Pommes de terre", "Huile végétale", "Sel"],
+          "allergens": []
+        },
+        {
+          "id": "onion-rings",
+          "name": "Rings d'oignon",
+          "description": "Rings d'oignon croustillants",
+          "price": 4.00,
+          "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
+          "type": "side",
+          "ingredients": ["Oignons", "Farine", "Huile végétale", "Sel"],
+          "allergens": ["Gluten"]
+        }
+      ]
+    },
+    {
+      "id": "desserts",
+      "name": "Desserts",
+      "items": [
+        {
+          "id": "baklava",
+          "name": "Baklava",
+          "description": "Pâtisserie orientale aux noix et miel",
+          "price": 3.50,
+          "image": "https://plus.unsplash.com/premium_photo-1700072294825-f8d75b6fddbc?q=80&w=388&auto=format&fit=crop&ixlib=rb-4.1.0&ixid=M3wxMjA3fDB8MHxwaG90by1wYWdlfHx8fGVufDB8fHx8fA%3D%3D",
+          "type": "dessert",
+          "ingredients": ["Pâte filo", "Noix", "Miel", "Beurre"],
+          "allergens": ["Gluten", "Fruits à coque", "Lait"]
+        },
+        {
+          "id": "kunefe",
+          "name": "Künefe",
+          "description": "Dessert turc au fromage et sirop",
+          "price": 4.00,
+          "image": "https://images.unsplash.com/photo-1573080496219-bb080dd4f877?w=500",
+          "type": "dessert",
+          "ingredients": ["Kadayıf", "Fromage", "Sirop", "Pistaches"],
+          "allergens": ["Gluten", "Lait", "Fruits à coque"]
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,41 @@
+/* Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@100..900&display=swap');
+
+/* Tailwind import */
+@import "tailwindcss";
+
+/* Global styles */
+* {
+  box-sizing: border-box;
+  font-family: 'Outfit', sans-serif;
+  scroll-behavior: smooth;
+}
+
+body {
+  @apply min-h-screen; /* Tailwind utility for min-height: 100vh */
+}
+
+a {
+  @apply no-underline text-inherit; /* Tailwind utilities for links */
+}
+
+/* App container with responsive width */
+.app {
+  @apply w-11/12 md:w-4/5 lg:w-3/4 mx-auto; 
+  /* 
+    w-11/12 -> almost full width on mobile
+    md:w-4/5 -> 80% width on tablets
+    lg:w-3/4 -> 75% width on desktop
+    mx-auto -> centered
+  */
+}
+
+/* Custom animations */
+@keyframes fadeIn {
+  0% {
+    opacity: 0;
+  }
+  100% {
+    opacity: 1;
+  }
+}

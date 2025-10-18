@@ -1,0 +1,115 @@
+.review-form-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0,0,0,0.4);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.review-form {
+  background: #fff;
+  padding: 25px;
+  border-radius: 10px;
+  width: 400px;
+  max-width: 90%;
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+}
+
+.review-form h3 {
+  color: tomato;
+  text-align: center;
+  margin-bottom: 10px;
+}
+
+.review-form input,
+.review-form textarea,
+.review-form select {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  outline: none;
+}
+
+.review-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.review-form button {
+  background-color: tomato;
+  color: #fff;
+  border: none;
+  padding: 10px 15px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-top: 5px;
+  width: 100%;
+}
+
+.review-form button:hover {
+  background-color: #ff6347cc;
+}
+
+.form-buttons {
+  display: flex;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cancel-btn {
+  background-color: #ff4d4d;
+}
+
+.review-modal {
+  position: fixed;      /* overlay on the whole page */
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background: rgba(0, 0, 0, 0.5); /* semi-transparent background */
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;        /* make sure it's above everything else */
+}
+
+.review-form {
+  background: white;
+  padding: 2rem;
+  border-radius: 8px;
+  width: 400px;
+  max-width: 90%;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+  display: flex;
+  flex-direction: column;
+}
+
+.review-form textarea {
+  resize: none;
+  padding: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.review-form select {
+  margin-bottom: 1rem;
+}
+
+.review-buttons {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.review-buttons button {
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+}

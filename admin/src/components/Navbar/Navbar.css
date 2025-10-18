@@ -1,0 +1,23 @@
+.navbar{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 4%;
+}
+.navbar .logo{
+    width: max(10%,80px);
+}
+.navbar .profile{
+    width: 40px;
+}
+.login-conditon{
+    font-size: 20px;
+    padding: 8px 25px 8px 25px;
+    border-radius: 50px;
+    background-color: tomato;
+    cursor: pointer;
+}
+.login-conditon:hover{
+    transform: translateY(-1.5px);
+    transform: scaleX(1.3px);
+}

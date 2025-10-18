@@ -1,0 +1,147 @@
+.place-order{
+    display: flex;
+    align-items: start;
+    justify-content: space-between;
+    gap: 50px;
+    margin-top: 100px;
+}
+.place-order-left{
+    width: 100%;
+    max-width: max(30%,500px);
+}
+.place-order-left .title{
+    font-size: 30px;
+    font-weight: 600;
+    margin-bottom: 50px;
+}
+.place-order-left input{
+    margin-bottom: 15px;
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #c5c5c5;
+    border-radius: 4px;
+    outline-color: tomato;
+}
+.place-order-left .multi-fields{
+    display: flex;
+    gap: 10px;
+}
+.place-order-right{
+    width: 100%;
+    max-width: max(40%,500px);
+}
+.place-order .cart-total button{
+    margin-top: 30px;
+}
+
+/* Order Summary Styles */
+.order-summary {
+    margin-top: 30px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+}
+
+.order-summary h3 {
+    font-size: 18px;
+    margin-bottom: 15px;
+    color: #333;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 10px;
+}
+
+.order-items-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    max-height: 300px;
+    overflow-y: auto;
+    padding-right: 5px;
+}
+
+.order-item {
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    border-radius: 6px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}
+
+.order-item.customized {
+    background-color: #fff9f9;
+    border-left: 3px solid #ff6b6b;
+}
+
+.order-item-name {
+    display: flex;
+    justify-content: space-between;
+    font-weight: 500;
+    margin-bottom: 5px;
+}
+
+.customized-tag {
+    background-color: #ff6b6b;
+    color: white;
+    font-size: 0.7rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    margin-left: 8px;
+    font-weight: normal;
+}
+
+.order-item-customizations {
+    margin: 5px 0;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.customization-detail {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 3px;
+    padding-left: 10px;
+    border-left: 2px solid #eee;
+}
+
+.customization-detail span:last-child {
+    color: #ff6b6b;
+    font-weight: 500;
+}
+
+.order-item-price {
+    align-self: flex-end;
+    font-weight: 600;
+    color: #333;
+    margin-top: 5px;
+}
+@media (max-width:800px) {
+    .place-order{
+        flex-direction: column;
+        margin-top: 50px;
+    }
+    .place-order-left .title{
+        font-size: 27px;
+    }
+}
+/* Food item image in order summary */
+.order-item-image {
+    width: 50px;             /* Thumbnail width */
+    height: 50px;            /* Thumbnail height */
+    object-fit: cover;       /* Crop to fit container without distortion */
+    border-radius: 6px;      /* Rounded corners like the card */
+    margin-right: 10px;      /* Space between image and text */
+    flex-shrink: 0;          /* Prevent image from shrinking */
+}
+
+/* Flex layout for order items with images */
+.order-item {
+    display: flex;
+    align-items: center;     /* Align image and text vertically */
+    gap: 10px;               /* Space between image and text */
+    padding: 10px;
+    border-radius: 6px;
+    background-color: white;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+}

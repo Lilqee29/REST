@@ -1,0 +1,129 @@
+.footer {
+  background: #323232;
+  color: #d9d9d9;
+  padding: 30px 5vw;
+  margin-top: 60px;
+  font-size: 14px;
+}
+
+/* Haut : logo + réseaux */
+.footer-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 25px;
+}
+.footer-logo img {
+  width: 120px;
+}
+.footer-socials {
+  display: flex;
+  gap: 12px;
+}
+.footer-socials svg {
+  cursor: pointer;
+  transition: transform 0.2s;
+}
+.footer-socials svg:hover {
+  transform: scale(1.1);
+  color: tomato;
+}
+
+/* Milieu : newsletter + contact */
+.footer-middle {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+  flex-wrap: wrap;
+  margin-bottom: 20px;
+}
+.footer-newsletter p {
+  margin-bottom: 8px;
+  font-size: 13px;
+}
+.newsletter-input {
+  display: flex;
+  gap: 10px;
+}
+.newsletter-input input {
+  padding: 8px 12px;
+  border-radius: 20px;
+  border: 1px solid tomato;
+  outline: none;
+  font-size: 13px;
+  color: white;
+  background: transparent;
+  flex: 1;
+}
+.newsletter-input input:disabled {
+  background: #444;
+  cursor: not-allowed;
+  border-color: #666;
+}
+.newsletter-input button {
+  background: tomato;
+  color: white;
+  border: none;
+  padding: 8px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: background 0.2s;
+}
+.newsletter-input button:hover:not(:disabled) {
+  background: #e64545;
+}
+.newsletter-input button:disabled {
+  background: #666;
+  cursor: not-allowed;
+}
+.newsletter-message {
+  margin-top: 8px;
+  font-size: 12px;
+  padding: 6px 10px;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.1);
+}
+.footer-contact p {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 5px 0;
+  font-size: 13px;
+}
+
+/* Ligne de séparation */
+.footer hr {
+  border: none;
+  height: 1px;
+  background: gray;
+  margin: 15px 0;
+}
+
+/* Copyright */
+.footer-copy {
+  text-align: center;
+  font-size: 12px;
+  color: #aaa;
+}
+
+/* Responsive */
+@media (max-width: 750px) {
+  .footer-middle {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+  }
+
+  .newsletter-input {
+    width: 100%;
+  }
+
+  .newsletter-input input {
+    flex: 1;
+  }
+
+  .footer-contact {
+    width: 100%;
+  }
+}
