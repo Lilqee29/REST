@@ -7,9 +7,9 @@ import {
   forgotPassword, 
   verifyResetCode, 
   resetPassword,
-  updatePassword,
   updateProfile,
   createAdminUser,
+  changePassword,
 
 } from "../controllers/userController.js";
 import authMiddleware from "../middleware/auth.js";
@@ -27,6 +27,6 @@ userRouter.post("/forgot-password", forgotPassword);
 userRouter.post("/verify-reset-code", verifyResetCode);
 userRouter.post("/reset-password", resetPassword);
 userRouter.put("/update-profile", authMiddleware, updateProfile);
-userRouter.post("/update-password", authMiddleware, updatePassword);
+userRouter.post("/update-password", authMiddleware, changePassword);
 
 export default userRouter;
