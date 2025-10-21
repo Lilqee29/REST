@@ -20,7 +20,7 @@ export default function AdminNewsletter() {
 
   const fetchSubscribers = async () => {
     try {
-      const res = await fetch('http://localhost:5000/api/newsletter/subscribers');
+      const res = await fetch('https://restaurant-backend-06ce.onrender.com/api/newsletter/subscribers');
       const data = await res.json();
       setSubscribers(data.subscribers || []);
       setSubscriberCount(data.count || 0);
@@ -31,7 +31,7 @@ export default function AdminNewsletter() {
 
   const handleDelete = async (email) => {
     try {
-      const res = await fetch('http://localhost:5000/api/newsletter/delete', {
+      const res = await fetch('https://restaurant-backend-06ce.onrender.com/api/newsletter/delete', {
         method: 'DELETE',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email }),
@@ -62,7 +62,7 @@ export default function AdminNewsletter() {
     setResponse('');
 
     try {
-      const res = await fetch('http://localhost:5000/api/newsletter/send-newsletter', {
+      const res = await fetch('https://restaurant-backend-06ce.onrender.com/api/newsletter/send-newsletter', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ subject, message, imageUrl })
