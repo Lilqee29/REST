@@ -19,7 +19,7 @@ connectDB();
 // ✅ 2. Enable CORS **BEFORE any routes**
 app.use(
   cors({
-    origin: ["http://localhost:5173", "http://localhost:2000","https://overpolemical-paulette-lymphangiomatous.ngrok-free.dev","https://rest-psi-ten.vercel.app/"], // frontend URL
+    origin: ["http://localhost:5173", "http://localhost:2000","https://overpolemical-paulette-lymphangiomatous.ngrok-free.dev","https://rest-psi-ten.vercel.app"], // frontend URL
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
