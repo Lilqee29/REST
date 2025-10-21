@@ -8,7 +8,8 @@ import {
   verifyResetCode, 
   resetPassword,
   updatePassword,
-  updateProfile
+  updateProfile,
+  createAdminUser,
 
 } from "../controllers/userController.js";
 import authMiddleware from "../middleware/auth.js";
@@ -16,6 +17,7 @@ import authMiddleware from "../middleware/auth.js";
 const userRouter = express.Router();
 
 userRouter.post("/register", registerUser);
+userRouter.post("/create-admin", createAdminUser);
 userRouter.post("/login", loginUser);
 userRouter.post("/save-billing", authMiddleware, saveBillingInfo);
 userRouter.get("/me", authMiddleware, getUserProfile);

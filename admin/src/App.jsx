@@ -13,6 +13,7 @@ import Review from "./pages/Review/AdminReview"
 import PromoCodeManager from "./pages/promoCode/promoCode";
 import AdminNewsletter from "./pages/Newsletter/AdminNewsletter";
 import AdminAnalytics from "./pages/AnalyticsDashoboard/AdminAnalytics";
+import ChangePassword from "./components/changePassword/changePassword";
 
 const App = () => {
   const url = "https://restaurant-backend-06ce.onrender.com";
@@ -32,6 +33,7 @@ const App = () => {
           <Route path="/newsletter" element={<AdminNewsletter url={url}/>} />
           <Route path="/promo" element={<PromoCodeManager url={url}/>} />
           <Route path="/analytics" element={<AdminAnalytics url={url}/>} />
+           <Route path="/change-password" element={<ChangePassword url={url}/>} />
         </Routes>
       </div>
     </div>
