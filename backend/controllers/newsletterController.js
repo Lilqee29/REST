@@ -1,7 +1,8 @@
 import Subscriber from '../models/subscriberModel.js';
-import nodemailer from 'nodemailer';
+import { Resend } from 'resend';
 
-
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 export const subscribe = async (req, res) => {
   try {
@@ -51,7 +52,6 @@ export const subscribe = async (req, res) => {
   }
 };
 
-
 export const getSubscribers = async (req, res) => {
   try {
     const subscribers = await Subscriber.find().sort({ date: -1 });
@@ -70,45 +70,55 @@ export const sendNewsletter = async (req, res) => {
       return res.status(400).json({ message: 'Aucun abonné trouvé' });
     }
 
-    const transporter = nodemailer.createTransport({
-      service: 'gmail',
-      auth: { 
-        user: process.env.EMAIL_USER, 
-        pass: process.env.EMAIL_PASSWORD
+    // Prepare email HTML
+    const emailHTML = `
+      <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; text-align: center;'>
+        <h2 style='color: #FF6B35;'>${subject}</h2>
+        <p style='font-size: 16px; color: #333; line-height: 1.6;'>${message}</p>
+        ${imageUrl ? `<img src='${imageUrl}' style='max-width: 100%; border-radius: 10px; margin: 20px 0;' alt='Newsletter image'>` : ''}
+        <hr style='margin: 20px 0; border: none; border-top: 1px solid #ddd;'>
+        <p style='font-size: 14px; color: #666;'>Merci d'être abonné à Kebab Express !</p>
+        <p style='font-size: 12px; color: #999;'>25 Rue du Goût, Paris | +33 1 23 45 67 89</p>
+      </div>
+    `;
+
+    // Send emails using Resend
+    const emailPromises = subscribers.map(sub => 
+      resend.emails.send({
+        from: 'Kebab Express <onboarding@resend.dev>', // Update with your verified domain
+        to: [sub.email],
+        subject: subject,
+        html: emailHTML,
+      })
+    );
+
+    // Wait for all emails to be sent
+    const results = await Promise.allSettled(emailPromises);
+    
+    // Count successful sends
+    const successCount = results.filter(r => r.status === 'fulfilled').length;
+    const failCount = results.filter(r => r.status === 'rejected').length;
+
+    console.log(`✅ Newsletter sent: ${successCount} successful, ${failCount} failed`);
+
+    res.status(200).json({ 
+      message: `Newsletter envoyée à ${successCount} abonné(s)!`,
+      details: {
+        total: subscribers.length,
+        successful: successCount,
+        failed: failCount
       }
     });
 
-    for (const sub of subscribers) {
-      await transporter.sendMail({
-        from: `Kebab Express <${process.env.EMAIL_USER}>`,
-        to: sub.email,
-        subject,
-        html: `
-          <div style='font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; text-align: center;'>
-            <h2 style='color: #FF6B35;'>${subject}</h2>
-            <p style='font-size: 16px; color: #333; line-height: 1.6;'>${message}</p>
-            ${imageUrl ? `<img src='${imageUrl}' style='max-width: 100%; border-radius: 10px; margin: 20px 0;' alt='Newsletter image'>` : ''}
-            <hr style='margin: 20px 0; border: none; border-top: 1px solid #ddd;'>
-            <p style='font-size: 14px; color: #666;'>Merci d'être abonné à Kebab Express !</p>
-            <p style='font-size: 12px; color: #999;'>25 Rue du Goût, Paris | +33 1 23 45 67 89</p>
-          </div>
-        `
-      });
-    }
-
-    res.status(200).json({ 
-      message: `Newsletter envoyée à ${subscribers.length} abonné(s)!` 
-    });
   } catch (err) {
-  console.error("❌ Newsletter send error:", err);
-  res.status(500).json({ message: "Erreur lors de l'envoi", error: err.message });
-}
-
+    console.error("❌ Newsletter send error:", err);
+    res.status(500).json({ message: "Erreur lors de l'envoi", error: err.message });
+  }
 };
 
 export const deleteSubscriber = async (req, res) => {
   try {
-    const { email } = req.body; // 🟢 we take the email from the request body
+    const { email } = req.body;
 
     // 1️⃣ Check if email was provided
     if (!email) {
@@ -132,4 +142,3 @@ export const deleteSubscriber = async (req, res) => {
     res.status(500).json({ message: "Erreur serveur", err });
   }
 };
-

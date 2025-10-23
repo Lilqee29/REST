@@ -1,15 +1,9 @@
-import nodemailer from "nodemailer";
+import { Resend } from 'resend';
 import orderModel from "../models/orderModel.js";
 import userModel from "../models/userModel.js";
 
-// Configure email service
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASSWORD,
-  },
-});
+// Initialize Resend with your API key
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // Generate professional HTML receipt
 const generateReceiptHTML = (order, user, items) => {
@@ -450,7 +444,7 @@ const generateReceiptHTML = (order, user, items) => {
   `;
 };
 
-// Send receipt email
+// Send receipt email using Resend
 export const sendReceiptEmail = async (orderId) => {
   try {
     const order = await orderModel.findById(orderId);
@@ -476,17 +470,22 @@ export const sendReceiptEmail = async (orderId) => {
 
     const receiptHTML = generateReceiptHTML(order, user, itemsList);
 
-    const mailOptions = {
-      from: process.env.EMAIL_USER,
-      to: user.email,
+    // Send email using Resend
+    const { data, error } = await resend.emails.send({
+      from: 'Kebab Express <onboarding@resend.dev>', // Update this with your verified domain
+      to: [user.email],
       subject: `Commande confirmée #${order._id.toString().slice(-8).toUpperCase()} - ${new Date().toLocaleDateString('fr-FR')}`,
       html: receiptHTML,
-    };
+    });
 
-    const result = await transporter.sendMail(mailOptions);
-    console.log(`✅ Receipt email sent to ${user.email} | Message ID: ${result.messageId}`);
+    if (error) {
+      console.error("❌ Error sending receipt email:", error);
+      throw error;
+    }
+
+    console.log(`✅ Receipt email sent to ${user.email} | Email ID: ${data.id}`);
+    return data;
     
-    return result;
   } catch (error) {
     console.error("❌ Error sending receipt email:", error.message);
     throw error;
