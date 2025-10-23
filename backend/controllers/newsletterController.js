@@ -100,8 +100,10 @@ export const sendNewsletter = async (req, res) => {
       message: `Newsletter envoyée à ${subscribers.length} abonné(s)!` 
     });
   } catch (err) {
-    res.status(500).json({ message: 'Erreur lors de l\'envoi', err });
-  }
+  console.error("❌ Newsletter send error:", err);
+  res.status(500).json({ message: "Erreur lors de l'envoi", error: err.message });
+}
+
 };
 
 export const deleteSubscriber = async (req, res) => {
