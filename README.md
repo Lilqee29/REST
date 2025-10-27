@@ -103,7 +103,7 @@
 - [ ] Quantity Presets/Combo Deals
 - [ ] Live Chat Support
 - [ ] Loyalty Points System
-- [ ] Analytics Dashboard (Admin)
+- [x] Analytics Dashboard (Admin)
 - [ ] Inventory Management
 - [ ] Dark Mode
 - [ ] SQL Injection Prevention

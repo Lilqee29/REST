@@ -261,13 +261,36 @@ const listOrders = async (req, res) => {
 };
 
 // api for updating status
+// Inside your updateStatus function, ADD THIS after updating order:
+
 const updateStatus = async (req, res) => {
   try {
     let userData = await userModel.findById(req.body.userId);
     if (userData && userData.role === "admin") {
-      await orderModel.findByIdAndUpdate(req.body.orderId, {
-        status: req.body.status,
-      });
+      const order = await orderModel.findByIdAndUpdate(
+        req.body.orderId,
+        { status: req.body.status },
+        { new: true }
+      );
+
+      // ✅ SEND PUSH NOTIFICATION TO CUSTOMER
+      try {
+        await fetch(`${process.env.BACKEND_URL}/api/notifications/notify-order-status`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            userId: order.userId.toString(),
+            orderId: order._id.toString(),
+            status: req.body.status,
+            items: order.items
+          })
+        });
+        console.log(`✅ Notification sent for order status change`);
+      } catch (notificationError) {
+        console.error('⚠️ Failed to send notification:', notificationError);
+        // Don't fail the order update if notification fails
+      }
+
       res.json({ success: true, message: "Status Updated Successfully" });
     } else {
       res.json({ success: false, message: "You are not an admin" });
@@ -277,7 +300,6 @@ const updateStatus = async (req, res) => {
     res.json({ success: false, message: "Error" });
   }
 };
-
 // Cancel order (admin only)
 const cancelOrder = async (req, res) => {
   try {

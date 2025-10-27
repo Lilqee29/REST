@@ -9,6 +9,10 @@ import orderRouter from "./routes/orderRoute.js";
 import promoRouter from "./routes/promoCodeRoute.js";
 import reviewRouter from "./routes/reviewRoute.js";
 import newsletterRoutes from "./routes/newsletterRoute.js";
+// Add these imports
+import notificationRoutes from "./routes/notificationRoute.js";
+import PushSubscription from "./models/pushSubscriptionModel.js";
+
 
 const app = express();
 const port = process.env.PORT || 5000;
@@ -59,6 +63,9 @@ app.use("/api/cart", cartRouter);
 app.use("/api/review", reviewRouter);
 app.use("/api/promo", promoRouter);
 app.use("/api/newsletter", newsletterRoutes);
+// Add this after other routes
+app.use("/api/notifications", notificationRoutes);
+
 
 // ✅ 6. Handle preflight (OPTIONS) requests globally
 app.options("*", cors());
@@ -67,6 +74,8 @@ app.options("*", cors());
 app.get("/", (req, res) => {
   res.send("✅ API Working and CORS Configured");
 });
+
+
 
 // ✅ 8. Start server
 app.listen(port, () => {
