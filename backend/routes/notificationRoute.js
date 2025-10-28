@@ -35,15 +35,29 @@ router.post('/subscribe', auth, async (req, res) => {
 router.post('/notify-order-status', async (req, res) => {
   try {
     const { userId, orderId, status, items } = req.body;
+    
+    console.log(`📬 [NOTIFICATION DEBUG] Attempting to send notification:`);
+    console.log(`   UserId: ${userId}`);
+    console.log(`   OrderId: ${orderId}`);
+    console.log(`   Status: ${status}`);
+    console.log(`   Status Type: ${typeof status}`);
 
     // Get user's subscription
     const subData = await PushSubscription.findOne({ userId });
 
-    if (!subData || !subData.subscription) {
+    if (!subData) {
+      console.log(`⚠️ [NOTIFICATION DEBUG] No subscription found for userId: ${userId}`);
       return res.json({ success: false, message: 'No subscription found' });
     }
 
-    // ✅ FIX: Use French status names to match database
+    if (!subData.subscription) {
+      console.log(`⚠️ [NOTIFICATION DEBUG] Subscription object is empty for userId: ${userId}`);
+      return res.json({ success: false, message: 'Subscription empty' });
+    }
+
+    console.log(`✅ [NOTIFICATION DEBUG] Subscription found for user: ${userId}`);
+
+    // ✅ Status mapping - all possible statuses
     const notificationTitles = {
       'En préparation': '🍳 Commande en préparation',
       'Livraison': '🚗 Commande en livraison',
@@ -62,8 +76,11 @@ router.post('/notify-order-status', async (req, res) => {
       'Refunded': 'Votre commande a été remboursée.'
     };
 
-    const payloadTitle = notificationTitles[status] || 'Statut de commande mis à jour';
+    const payloadTitle = notificationTitles[status] || `Statut: ${status}`;
     const payloadBody = notificationBodies[status] || 'Cliquez pour voir les détails';
+
+    console.log(`📝 [NOTIFICATION DEBUG] Using title: "${payloadTitle}"`);
+    console.log(`📝 [NOTIFICATION DEBUG] Using body: "${payloadBody}"`);
 
     const payload = JSON.stringify({
       title: payloadTitle,
@@ -82,17 +99,31 @@ router.post('/notify-order-status', async (req, res) => {
     // Send notification
     await webpush.sendNotification(subData.subscription, payload);
 
-    console.log(`✅ Push notification sent to ${userId} for order ${orderId} | Status: ${status}`);
-    res.json({ success: true, message: 'Notification sent' });
+    console.log(`✅ [NOTIFICATION SUCCESS] Push sent to ${userId} | Order: ${orderId} | Status: ${status}`);
+    res.json({ success: true, message: 'Notification sent', status: status });
+    
   } catch (error) {
-    console.error('Error sending notification:', error);
+    console.error(`❌ [NOTIFICATION ERROR] Failed to send:`, error.message);
+    console.error(`Error details:`, error);
     
     // Handle subscription expired error
     if (error.statusCode === 410) {
+      console.log(`🗑️ [NOTIFICATION DEBUG] Subscription expired (410), removing for userId: ${req.body.userId}`);
       await PushSubscription.deleteOne({ userId: req.body.userId });
     }
 
-    res.status(500).json({ success: false, message: 'Error sending notification' });
+    res.status(500).json({ success: false, message: 'Error sending notification', error: error.message });
+  }
+});
+
+// Debug: List all subscriptions (for testing)
+router.get('/debug/subscriptions', async (req, res) => {
+  try {
+    const subs = await PushSubscription.find({}).select('userId createdAt updatedAt');
+    console.log(`📊 Total subscriptions: ${subs.length}`);
+    res.json({ success: true, subscriptions: subs });
+  } catch (error) {
+    res.status(500).json({ success: false, message: 'Error fetching subscriptions' });
   }
 });
 
@@ -110,7 +141,7 @@ router.post('/unsubscribe', auth, async (req, res) => {
 // Temporary test route to send a push notification
 router.post('/test', async (req, res) => {
   try {
-    const { subscription } = req.body;
+    const { subscription, userId } = req.body;
 
     if (!subscription) {
       return res.status(400).json({ success: false, message: 'Subscription required' });
@@ -127,6 +158,7 @@ router.post('/test', async (req, res) => {
 
     await webpush.sendNotification(subscription, payload);
 
+    console.log(`✅ Test notification sent to userId: ${userId}`);
     res.json({ success: true, message: 'Test notification sent!' });
   } catch (error) {
     console.error('Error sending test notification:', error);
