@@ -43,19 +43,23 @@ router.post('/notify-order-status', async (req, res) => {
       return res.json({ success: false, message: 'No subscription found' });
     }
 
-    // Determine notification content based on status
+    // ✅ FIX: Use French status names to match database
     const notificationTitles = {
-      'Food Processing': '🍳 Commande en préparation',
-      'Out for delivery': '🚗 Commande en livraison',
-      'Delivered': '✅ Commande livrée',
-      'Cancelled': '❌ Commande annulée'
+      'En préparation': '🍳 Commande en préparation',
+      'Livraison': '🚗 Commande en livraison',
+      'Livrée': '✅ Commande livrée',
+      'Cancelled': '❌ Commande annulée',
+      'Payment Failed': '❌ Paiement échoué',
+      'Refunded': '💸 Commande remboursée'
     };
 
     const notificationBodies = {
-      'Food Processing': 'Votre commande est en cours de préparation. À bientôt!',
-      'Out for delivery': 'Votre commande est en route. Elle arrive bientôt!',
-      'Delivered': 'Votre commande a été livrée. Merci!',
-      'Cancelled': 'Votre commande a été annulée.'
+      'En préparation': 'Votre commande est en cours de préparation. À bientôt!',
+      'Livraison': 'Votre commande est en route. Elle arrive bientôt!',
+      'Livrée': 'Votre commande a été livrée. Merci!',
+      'Cancelled': 'Votre commande a été annulée.',
+      'Payment Failed': 'Le paiement de votre commande a échoué.',
+      'Refunded': 'Votre commande a été remboursée.'
     };
 
     const payloadTitle = notificationTitles[status] || 'Statut de commande mis à jour';
@@ -78,7 +82,7 @@ router.post('/notify-order-status', async (req, res) => {
     // Send notification
     await webpush.sendNotification(subData.subscription, payload);
 
-    console.log(`✅ Push notification sent to ${userId} for order ${orderId}`);
+    console.log(`✅ Push notification sent to ${userId} for order ${orderId} | Status: ${status}`);
     res.json({ success: true, message: 'Notification sent' });
   } catch (error) {
     console.error('Error sending notification:', error);
@@ -131,4 +135,3 @@ router.post('/test', async (req, res) => {
 });
 
 export default router;
-
