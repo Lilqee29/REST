@@ -1,81 +1,141 @@
-
-import { useEffect, useContext } from 'react';
+import { useEffect, useContext, useState } from 'react';
 import NotificationService from '../utils/notificationService';
 import { StoreContext } from '../context/StoreContext';
 
 export const useNotifications = () => {
   const { token, userId } = useContext(StoreContext);
+  const [notificationStatus, setNotificationStatus] = useState({
+    isSupported: false,
+    isSubscribed: false,
+    permission: 'default',
+    error: null
+  });
 
   useEffect(() => {
+    // Early return if no user or notification service unavailable
     if (!token || !userId) {
       console.log('⚠️ No token or userId, skipping notifications');
       return;
     }
 
-const initializeNotifications = async () => {
-  try {
-    console.log('🔔 Initializing notifications...');
+    // Wrap everything in try-catch to prevent crashes
+    const initializeNotifications = async () => {
+      try {
+        console.log('🔔 Initializing notifications...');
 
-    // 1️⃣ Register service worker
-    const registration = await NotificationService.registerServiceWorker();
-    if (!registration) {
-      console.error('Failed to register service worker');
-      return;
-    }
+        // Check if NotificationService exists and is supported
+        if (!NotificationService || !NotificationService.isSupported) {
+          console.warn('⚠️ Notifications not supported on this device');
+          setNotificationStatus({
+            isSupported: false,
+            isSubscribed: false,
+            permission: 'default',
+            error: 'Not supported on this device'
+          });
+          return;
+        }
 
-    // 2️⃣ Wait until the service worker is fully ready
-    const swRegistration = await waitForServiceWorkerReady();
+        console.log('📱 Device info:', {
+          isIOS: NotificationService.isIOS,
+          isStandalone: typeof window !== 'undefined' && 
+            (window.navigator?.standalone || window.matchMedia('(display-mode: standalone)').matches),
+          userAgent: typeof navigator !== 'undefined' ? navigator.userAgent : 'unknown'
+        });
 
-    // 3️⃣ Request permission
-    const permission = await NotificationService.requestPermission();
-    if (!permission) {
-      console.warn('⚠️ Notification permission denied');
-      return;
-    }
+        // 1️⃣ Register service worker
+        const registration = await NotificationService.registerServiceWorker();
+        if (!registration) {
+          throw new Error('Failed to register service worker');
+        }
 
-    const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
-    if (!vapidKey) {
-      console.error('❌ VAPID key not found in .env');
-      return;
-    }
+        // 2️⃣ Wait for service worker to be ready
+        if (typeof navigator !== 'undefined' && 'serviceWorker' in navigator) {
+          await navigator.serviceWorker.ready;
+          console.log('✅ Service worker is ready');
+        }
 
-    // 4️⃣ Check if already subscribed
-    const existingSubscription = await swRegistration.pushManager.getSubscription();
-    if (existingSubscription) {
-      console.log('✅ Already subscribed to push notifications');
-      NotificationService.isSubscribed = true;
-      return;
-    }
+        // Small delay for iOS to ensure SW is fully active
+        if (NotificationService.isIOS) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
 
-    // 5️⃣ Otherwise, subscribe
-    const subscribed = await NotificationService.subscribe(vapidKey, userId, token);
-    if (subscribed) {
-      console.log('✅ Notifications enabled!');
-    }
-  } catch (error) {
-    console.error('❌ Error initializing notifications:', error);
-  }
-};
+        // 3️⃣ Check current subscription status
+        const status = await NotificationService.getSubscriptionStatus();
+        console.log('📊 Current status:', status);
 
-// Helper: wait until SW ready
-const waitForServiceWorkerReady = async (maxAttempts = 5) => {
-  for (let attempt = 0; attempt < maxAttempts; attempt++) {
-    if (navigator.serviceWorker.controller) {
-      return await navigator.serviceWorker.ready;
-    }
-    console.log(`⏳ Waiting for service worker... (${attempt + 1}/${maxAttempts})`);
-    await new Promise((resolve) => setTimeout(resolve, 500)); // wait 0.5s
-  }
-  throw new Error('Service worker not ready after waiting');
-};
+        if (status?.isSubscribed) {
+          console.log('✅ Already subscribed to push notifications');
+          setNotificationStatus({
+            isSupported: true,
+            isSubscribed: true,
+            permission: status.permission || 'granted',
+            error: null
+          });
+          return;
+        }
 
+        // 4️⃣ Request permission (only if not already granted/denied)
+        if (typeof Notification !== 'undefined' && Notification.permission === 'default') {
+          const permission = await NotificationService.requestPermission();
+          if (!permission) {
+            console.warn('⚠️ Notification permission denied');
+            setNotificationStatus({
+              isSupported: true,
+              isSubscribed: false,
+              permission: Notification.permission,
+              error: 'Permission denied'
+            });
+            return;
+          }
+        }
+
+        // 5️⃣ Get VAPID key
+        const vapidKey = import.meta.env.VITE_VAPID_PUBLIC_KEY;
+        if (!vapidKey) {
+          throw new Error('VAPID key not found');
+        }
+
+        // 6️⃣ Subscribe to push notifications
+        const subscribed = await NotificationService.subscribe(vapidKey, userId, token);
+        
+        if (subscribed) {
+          console.log('✅ Notifications enabled successfully!');
+          setNotificationStatus({
+            isSupported: true,
+            isSubscribed: true,
+            permission: 'granted',
+            error: null
+          });
+
+          // Show test notification on iOS
+          if (NotificationService.isIOS) {
+            setTimeout(() => {
+              NotificationService.showTestNotification().catch(err => {
+                console.warn('Test notification failed:', err);
+              });
+            }, 1000);
+          }
+        } else {
+          throw new Error('Subscription failed');
+        }
+
+      } catch (error) {
+        console.error('❌ Error initializing notifications:', error);
+        setNotificationStatus({
+          isSupported: NotificationService?.isSupported || false,
+          isSubscribed: false,
+          permission: typeof Notification !== 'undefined' ? Notification.permission : 'default',
+          error: error.message
+        });
+      }
+    };
 
     initializeNotifications();
   }, [token, userId]);
 
   return {
-    isSupported: NotificationService.isSupported,
-    isSubscribed: NotificationService.isSubscribed,
-    showNotification: NotificationService.showNotification.bind(NotificationService)
+    ...notificationStatus,
+    showNotification: NotificationService?.showTestNotification?.bind(NotificationService) || (() => {}),
+    getStatus: NotificationService?.getSubscriptionStatus?.bind(NotificationService) || (() => null)
   };
 };

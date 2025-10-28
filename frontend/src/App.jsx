@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
@@ -14,39 +13,50 @@ import Verify from "./pages/Verify/Verify";
 import MyOrders from "./pages/MyOrders/MyOrders";
 import MenuPage from "./components/MenuPage/MenuPage";
 import Map from "./components/Map/Map";
-
+import Profile from "./components/profile/profile";
 import Loading from "./components/Loading/Loading";
-import Profile from "./components/profile/profile"
-import { useNotifications } from "./hooks/useNotifications"; // ✅ ADD THIS
+import NotificationDebug from "./components/NotificationDebug";
+import { useNotifications } from "./hooks/useNotifications";
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
   const [userToken, setUserToken] = useState(null);
   const [loading, setLoading] = useState(true);
+  const [showDebug, setShowDebug] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
 
-  // ✅ Initialize notifications
+  // Initialize notifications
   const { isSupported, isSubscribed } = useNotifications();
 
-  // ✅ Check token on every load (including after Stripe redirect)
+  // Check for debug mode in URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const debugParam = params.get('debug');
+    const debugStorage = localStorage.getItem('showDebug');
+    
+    if (debugParam === 'true' || debugStorage === 'true') {
+      setShowDebug(true);
+      localStorage.setItem('showDebug', 'true');
+    }
+  }, [location.search]);
+
+  // Check token on every load
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (token) {
       setUserToken(token);
     } else {
-      // Only show toast after a short delay to prevent flashing
       setTimeout(() => {
         toast.error("User not logged in", { toastId: "login-error" });
       }, 300);
     }
 
-    // small delay to allow any async redirects to finish
     setTimeout(() => setLoading(false), 300);
   }, []);
 
-  // ✅ Handle Stripe redirect safely after loading
+  // Handle Stripe redirect
   useEffect(() => {
     if (!loading && userToken) {
       const params = new URLSearchParams(location.search);
@@ -58,7 +68,12 @@ const App = () => {
     }
   }, [loading, userToken, location, navigate]);
 
-  // Show loading spinner until token is checked
+  const toggleDebug = () => {
+    const newState = !showDebug;
+    setShowDebug(newState);
+    localStorage.setItem('showDebug', newState.toString());
+  };
+
   if (loading) return <Loading />;
 
   return (
@@ -67,6 +82,7 @@ const App = () => {
       <div className="app">
         <ToastContainer />
         <Navbar setShowLogin={setShowLogin} />
+        
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/menu" element={<MenuPage />} />
@@ -78,8 +94,38 @@ const App = () => {
           <Route path="/profile" element={<Profile />} />
         </Routes>
 
-        {/* ✅ Optional: Notification status indicator */}
-        {isSupported && (
+        {/* Debug Panel */}
+        {showDebug && <NotificationDebug onClose={toggleDebug} />}
+
+        {/* Debug Toggle Button */}
+        <button
+          onClick={toggleDebug}
+          style={{
+            position: 'fixed',
+            bottom: '20px',
+            left: '20px',
+            width: '50px',
+            height: '50px',
+            borderRadius: '50%',
+            backgroundColor: showDebug ? '#ff6347' : '#4CAF50',
+            color: '#fff',
+            border: 'none',
+            fontSize: '24px',
+            cursor: 'pointer',
+            boxShadow: '0 4px 12px rgba(0,0,0,0.2)',
+            zIndex: 9998,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            transition: 'all 0.3s ease'
+          }}
+          title={showDebug ? 'Hide Debug Panel' : 'Show Debug Panel'}
+        >
+          {showDebug ? '×' : '🔧'}
+        </button>
+
+        {/* Notification status indicator (when debug is OFF) */}
+        {!showDebug && isSupported && (
           <div style={{
             position: 'fixed',
             bottom: '20px',

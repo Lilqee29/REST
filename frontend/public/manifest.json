@@ -4,6 +4,7 @@
   "description": "Order delicious food with customization options and fast delivery",
   "start_url": "/",
   "scope": "/",
+  "id": "/",
   "display": "standalone",
   "orientation": "any",
   "theme_color": "#ff6347",
