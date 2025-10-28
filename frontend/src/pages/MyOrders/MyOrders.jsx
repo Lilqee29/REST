@@ -11,6 +11,39 @@ import { toast } from "react-toastify";
 import OrderDetails from "../../components/OrderDetails/OrderDetails";
 import { useNavigate } from "react-router-dom";
 
+
+
+
+const translateStatus = (status) => {
+  switch (status) {
+    case "Cancelled":
+    case "Annulée":
+      return "Annulée";
+
+    case "Delivered":
+    case "Livrée":
+      return "Livrée";
+
+    case "Processing":
+    case "Food Processing":
+    case "En préparation":
+      return "En préparation";
+
+    case "Out for Delivery":
+    case "En livraison":
+      return "En livraison";
+
+    case "Refunded":
+      return "Remboursée";
+
+    case "Payment Failed":
+      return "Échec du paiement";
+
+    default:
+      return status; // fallback
+  }
+};
+
 const MyOrders = () => {
   const { url, token } = useContext(StoreContext);
   const navigate = useNavigate();
@@ -287,46 +320,56 @@ const MyOrders = () => {
 
                   <p>
                     <span>&#x25cf;</span>{" "}
-                    <b
-                      className={
-                        order.status === "Cancelled"
-                          ? "cancelled-label"
-                          : order.status === "Delivered"
-                          ? "delivered-label"
-                          : "processing-label"
-                      }
-                    >
-                      {order.status === "Cancelled"
-                        ? "Annulée"
-                        : order.status === "Delivered"
-                        ? "Livrée"
-                        : "En cours"}
-                    </b>
+                 <b
+  className={
+    order.status === "Cancelled" || order.status === "Annulée"
+      ? "cancelled-label"
+      : order.status === "Delivered" || order.status === "Livrée"
+      ? "delivered-label"
+      : "processing-label"
+  }
+>
+  {translateStatus(order.status)}
+</b>
+
+
                   </p>
 
                   <div className="order-actions">
-                    <button
+                   <button
                       disabled={order.status === "Delivered" || order.status === "Cancelled"}
+                      onClick={() => {
+                        if (order.status !== "Delivered" && order.status !== "Cancelled") {
+                          
+                          fetchOrders(); // 🔁 Refresh all orders
+                        }
+                      }}
                       style={{
                         backgroundColor:
                           order.status === "Delivered"
                             ? "green"
                             : order.status === "Cancelled"
                             ? "red"
-                            : "yellow",
+                            : "#fbbf24", // yellow-400
                         color: "white",
+                        border: "none",
+                        borderRadius: "6px",
+                        padding: "8px 14px",
+                        fontWeight: "600",
                         cursor:
                           order.status === "Delivered" || order.status === "Cancelled"
-                            ? "default"
+                            ? "not-allowed"
                             : "pointer",
+                        transition: "all 0.2s",
                       }}
                     >
                       {order.status === "Delivered"
                         ? "Livrée"
                         : order.status === "Cancelled"
                         ? "Annulée"
-                        : "Suivre la commande"}
+                        : "Actualiser l’état"}
                     </button>
+
 
                     <button onClick={() => toggleOrderDetails(order._id)}>
                       {expandedOrderId === order._id ? "Cacher les articles" : "Voir les articles"}

@@ -1,5 +1,5 @@
-// App.jsx
-import  { useState, useEffect } from "react";
+
+import { useState, useEffect } from "react";
 import Navbar from "./components/Navbar/Navbar";
 import Footer from "./components/Footer/Footer";
 import LoginPopup from "./components/LoginPopup/LoginPopup";
@@ -17,6 +17,7 @@ import Map from "./components/Map/Map";
 
 import Loading from "./components/Loading/Loading";
 import Profile from "./components/profile/profile"
+import { useNotifications } from "./hooks/useNotifications"; // ✅ ADD THIS
 
 const App = () => {
   const [showLogin, setShowLogin] = useState(false);
@@ -25,6 +26,9 @@ const App = () => {
 
   const navigate = useNavigate();
   const location = useLocation();
+
+  // ✅ Initialize notifications
+  const { isSupported, isSubscribed } = useNotifications();
 
   // ✅ Check token on every load (including after Stripe redirect)
   useEffect(() => {
@@ -73,6 +77,25 @@ const App = () => {
           <Route path="/map" element={<Map />} />
           <Route path="/profile" element={<Profile />} />
         </Routes>
+
+        {/* ✅ Optional: Notification status indicator */}
+        {isSupported && (
+          <div style={{
+            position: 'fixed',
+            bottom: '20px',
+            right: '20px',
+            fontSize: '12px',
+            padding: '8px 12px',
+            borderRadius: '6px',
+            backgroundColor: isSubscribed ? '#dcfce7' : '#fef3c7',
+            color: isSubscribed ? '#166534' : '#92400e',
+            fontWeight: 'bold',
+            zIndex: 999,
+            boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+          }}>
+            {isSubscribed ? '✅ Notifications activées' : '⚠️ Notifications désactivées'}
+          </div>
+        )}
       </div>
       <Footer />
     </>

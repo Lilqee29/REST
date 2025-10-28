@@ -103,5 +103,32 @@ router.post('/unsubscribe', auth, async (req, res) => {
   }
 });
 
+// Temporary test route to send a push notification
+router.post('/test', async (req, res) => {
+  try {
+    const { subscription } = req.body;
+
+    if (!subscription) {
+      return res.status(400).json({ success: false, message: 'Subscription required' });
+    }
+
+    const payload = JSON.stringify({
+      title: '🔔 Test Notification',
+      body: 'This is a test push notification from your backend!',
+      icon: '/logo.png',
+      badge: '/logo-small.png',
+      tag: 'test-notification',
+      data: { url: '/myorders' }
+    });
+
+    await webpush.sendNotification(subscription, payload);
+
+    res.json({ success: true, message: 'Test notification sent!' });
+  } catch (error) {
+    console.error('Error sending test notification:', error);
+    res.status(500).json({ success: false, message: 'Failed to send test notification' });
+  }
+});
+
 export default router;
 

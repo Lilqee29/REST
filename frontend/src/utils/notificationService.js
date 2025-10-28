@@ -1,3 +1,4 @@
+
 class NotificationService {
   constructor() {
     this.isSupported = this.checkSupport();
@@ -19,9 +20,13 @@ class NotificationService {
     }
 
     try {
-      const registration = await navigator.serviceWorker.register('/service-worker.js', {
-        scope: '/'
-      });
+      const existing = await navigator.serviceWorker.getRegistration('/');
+      if (existing) {
+        console.log('🟢 Service Worker already registered');
+        return existing;
+      }
+      const registration = await navigator.serviceWorker.register('/service-worker.js', { scope: '/' });
+
       console.log('✅ Service Worker registered successfully');
       return registration;
     } catch (error) {
@@ -73,7 +78,10 @@ class NotificationService {
 
   async sendSubscriptionToBackend(subscription, userId, token) {
     try {
-      const response = await fetch(`${process.env.REACT_APP_API_URL}/api/notifications/subscribe`, {
+      // ✅ FIX: Changed from process.env.REACT_APP_API_URL to import.meta.env.VITE_API_URL
+      const apiUrl = import.meta.env.VITE_API_URL || 'https://restaurant-backend-06ce.onrender.com';
+      
+      const response = await fetch(`${apiUrl}/api/notifications/subscribe`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

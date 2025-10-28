@@ -1,6 +1,6 @@
 import React, { useContext, useState } from "react";
 import { assets } from "../../assets/frontend_assets/assets";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useNavigate,useLocation} from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
 import { Menu, X } from 'lucide-react';
@@ -11,6 +11,18 @@ const Navbar = ({ setShowLogin }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
+
+  const location = useLocation();
+
+// Sync active menu with current URL on first render and when path changes
+React.useEffect(() => {
+  if (location.pathname === "/") setMenu("home");
+  else if (location.pathname === "/menu") setMenu("menu");
+  else if (location.pathname === "/map") setMenu("map");
+  else if (location.pathname === "/myorders") setMenu("order");
+  else setMenu(""); // default for pages not listed
+}, [location.pathname]);
+
 
   const logout = () => {
     localStorage.removeItem("token");

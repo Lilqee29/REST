@@ -4,6 +4,8 @@ import userModel from "../models/userModel.js";
 import promoCodeModel from "../models/promoCodeModel.js";
 import { sendReceiptEmail } from "./recieptEmail.js";
 
+
+
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 
 // placing user order for frontend
@@ -102,7 +104,7 @@ const handleStripeWebhook = async (req, res) => {
             payment: true,
             paymentId: session.id,
             paymentTimestamp: new Date(),
-            status: "Food Processing",
+            status: 'En préparation' ,
           },
           { new: true }
         );

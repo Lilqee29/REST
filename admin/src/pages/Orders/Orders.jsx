@@ -178,18 +178,19 @@ const Orders = ({ url }) => {
               </button>
 
               {order.status === "Delivered" ? (
-                <span className="delivered-label">✓ Delivered</span>
+                <span className="delivered-label">✓ Livrée</span>
               ) : order.status === "Cancelled" ? (
-                <span className="cancelled-label">✕ Cancelled</span>
+                <span className="cancelled-label">✕ Annulée</span>
               ) : (
                 <>
                   <select
                     onChange={(event) => statusHandler(event, order._id)}
                     value={order.status}
                   >
-                    <option value="Food Processing">Food Processing</option>
-                    <option value="Out for delivery">Out for delivery</option>
-                    <option value="Delivered">Delivered</option>
+                    <option value="Food Processing">En préparation</option>
+                    <option value="Out for delivery">En livraison</option>
+                    <option value="Delivered">Livrée</option>
+                    <option value="Cancelled">Annulée</option>
                   </select>
                   
                   {order.status === "Out for delivery" && (
