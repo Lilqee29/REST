@@ -17,7 +17,6 @@ router.post('/subscribe', auth, async (req, res) => {
   try {
     const { subscription, userId } = req.body;
 
-    // Save subscription to database
     await PushSubscription.findOneAndUpdate(
       { userId: req.user.id },
       { subscription, userId: req.user.id },
@@ -36,94 +35,102 @@ router.post('/notify-order-status', async (req, res) => {
   try {
     const { userId, orderId, status, items } = req.body;
     
-    console.log(`📬 [NOTIFICATION DEBUG] Attempting to send notification:`);
-    console.log(`   UserId: ${userId}`);
-    console.log(`   OrderId: ${orderId}`);
-    console.log(`   Status: ${status}`);
-    console.log(`   Status Type: ${typeof status}`);
+    console.log(`📬 Sending notification | Status: ${status} | Order: ${orderId}`);
 
-    // Get user's subscription
     const subData = await PushSubscription.findOne({ userId });
 
-    if (!subData) {
-      console.log(`⚠️ [NOTIFICATION DEBUG] No subscription found for userId: ${userId}`);
+    if (!subData || !subData.subscription) {
+      console.log(`⚠️ No subscription found for userId: ${userId}`);
       return res.json({ success: false, message: 'No subscription found' });
     }
 
-    if (!subData.subscription) {
-      console.log(`⚠️ [NOTIFICATION DEBUG] Subscription object is empty for userId: ${userId}`);
-      return res.json({ success: false, message: 'Subscription empty' });
-    }
-
-    console.log(`✅ [NOTIFICATION DEBUG] Subscription found for user: ${userId}`);
-
-    // ✅ Status mapping - all possible statuses
-    const notificationTitles = {
-      'En préparation': '🍳 Commande en préparation',
-      'Livraison': '🚗 Commande en livraison',
-      'Livrée': '✅ Commande livrée',
-      'Cancelled': '❌ Commande annulée',
-      'Payment Failed': '❌ Paiement échoué',
-      'Refunded': '💸 Commande remboursée'
+    // ✅ Status configuration with emojis
+    const statusConfigs = {
+      'En préparation': {
+        title: '🍳 Commande en préparation',
+        body: 'Votre commande est en cours de préparation. À bientôt!',
+        vibrate: [200, 100, 200]
+      },
+      'Livraison': {
+        title: '🚗 Commande en livraison',
+        body: 'Votre commande est en route. Elle arrive bientôt!',
+        vibrate: [300, 100, 300]
+      },
+      'Livrée': {
+        title: '✅ Commande livrée',
+        body: 'Votre commande a été livrée. Merci!',
+        vibrate: [200, 50, 200, 50, 200]
+      },
+      'Cancelled': {
+        title: '❌ Commande annulée',
+        body: 'Votre commande a été annulée.',
+        vibrate: [500, 100, 500]
+      },
+      'Payment Failed': {
+        title: '❌ Paiement échoué',
+        body: 'Le paiement de votre commande a échoué.',
+        vibrate: [500, 100, 500]
+      },
+      'Refunded': {
+        title: '💸 Commande remboursée',
+        body: 'Votre commande a été remboursée.',
+        vibrate: [200, 100, 200]
+      }
     };
 
-    const notificationBodies = {
-      'En préparation': 'Votre commande est en cours de préparation. À bientôt!',
-      'Livraison': 'Votre commande est en route. Elle arrive bientôt!',
-      'Livrée': 'Votre commande a été livrée. Merci!',
-      'Cancelled': 'Votre commande a été annulée.',
-      'Payment Failed': 'Le paiement de votre commande a échoué.',
-      'Refunded': 'Votre commande a été remboursée.'
+    const config = statusConfigs[status] || {
+      title: 'Statut de commande',
+      body: `Votre commande: ${status}`,
+      vibrate: [200, 100, 200]
     };
 
-    const payloadTitle = notificationTitles[status] || `Statut: ${status}`;
-    const payloadBody = notificationBodies[status] || 'Cliquez pour voir les détails';
-
-    console.log(`📝 [NOTIFICATION DEBUG] Using title: "${payloadTitle}"`);
-    console.log(`📝 [NOTIFICATION DEBUG] Using body: "${payloadBody}"`);
+    // ✅ Create unique tag to prevent replacement
+    const timestamp = Date.now();
+    const uniqueTag = `order-${orderId}-${status}-${timestamp}`;
 
     const payload = JSON.stringify({
-      title: payloadTitle,
-      body: payloadBody,
+      title: config.title,
+      body: config.body,
       icon: '/logo.png',
       badge: '/logo-small.png',
-      tag: `order-${orderId}`,
+      tag: uniqueTag,  // ✅ Unique tag so notifications aren't replaced
+      requiresInteraction: true,
+      vibrate: config.vibrate,  // ✅ Add vibration
+      timestamp: Date.now(),
+      priority: 'high',  // ✅ Force high priority
+      actions: [
+        {
+          action: 'view-order',
+          title: 'Voir la commande'
+        },
+        {
+          action: 'close',
+          title: 'Fermer'
+        }
+      ],
       data: {
         orderId,
         status,
         itemsCount: items?.length || 0,
-        url: '/myorders'
+        url: '/myorders',
+        timestamp: Date.now()
       }
     });
 
-    // Send notification
     await webpush.sendNotification(subData.subscription, payload);
 
-    console.log(`✅ [NOTIFICATION SUCCESS] Push sent to ${userId} | Order: ${orderId} | Status: ${status}`);
-    res.json({ success: true, message: 'Notification sent', status: status });
+    console.log(`✅ Notification sent successfully | Status: ${status} | UserId: ${userId}`);
+    res.json({ success: true, message: 'Notification sent', status });
     
   } catch (error) {
-    console.error(`❌ [NOTIFICATION ERROR] Failed to send:`, error.message);
-    console.error(`Error details:`, error);
+    console.error(`❌ Error sending notification:`, error.message);
     
-    // Handle subscription expired error
     if (error.statusCode === 410) {
-      console.log(`🗑️ [NOTIFICATION DEBUG] Subscription expired (410), removing for userId: ${req.body.userId}`);
+      console.log(`🗑️ Subscription expired, removing...`);
       await PushSubscription.deleteOne({ userId: req.body.userId });
     }
 
     res.status(500).json({ success: false, message: 'Error sending notification', error: error.message });
-  }
-});
-
-// Debug: List all subscriptions (for testing)
-router.get('/debug/subscriptions', async (req, res) => {
-  try {
-    const subs = await PushSubscription.find({}).select('userId createdAt updatedAt');
-    console.log(`📊 Total subscriptions: ${subs.length}`);
-    res.json({ success: true, subscriptions: subs });
-  } catch (error) {
-    res.status(500).json({ success: false, message: 'Error fetching subscriptions' });
   }
 });
 
@@ -138,7 +145,7 @@ router.post('/unsubscribe', auth, async (req, res) => {
   }
 });
 
-// Temporary test route to send a push notification
+// Test route to verify notifications work
 router.post('/test', async (req, res) => {
   try {
     const { subscription, userId } = req.body;
@@ -149,10 +156,13 @@ router.post('/test', async (req, res) => {
 
     const payload = JSON.stringify({
       title: '🔔 Test Notification',
-      body: 'This is a test push notification from your backend!',
+      body: 'This is a test push notification!',
       icon: '/logo.png',
       badge: '/logo-small.png',
-      tag: 'test-notification',
+      tag: `test-${Date.now()}`,
+      requiresInteraction: true,
+      vibrate: [200, 100, 200],
+      priority: 'high',
       data: { url: '/myorders' }
     });
 
