@@ -3,7 +3,9 @@ import { assets } from "../../assets/frontend_assets/assets";
 import { Link, useNavigate,useLocation} from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
-import { Menu, X } from 'lucide-react';
+import { Menu, X } from 'lucide-react';import PWAInstallButton from '../PWAInstallButton/PWAInstallButton';
+
+
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
@@ -91,7 +93,8 @@ React.useEffect(() => {
                 </span>
               )}
             </Link>
-
+              {/* PWA Install Button */} 
+           <PWAInstallButton />
             {/* User Profile / Sign In */}
             {token ? (
               <div className="relative">
@@ -136,11 +139,11 @@ React.useEffect(() => {
               <button
                 onClick={() => setShowLogin(true)}
                 className="hidden sm:block px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
-              >
+              >          
                 Sign In
               </button>
             )}
-
+           
             {/* Mobile Menu Button */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}

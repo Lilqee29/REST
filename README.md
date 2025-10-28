@@ -105,6 +105,7 @@
 - [ ] Loyalty Points System
 - [x] Analytics Dashboard (Admin)
 - [ ] Inventory Management
+  [ ] Making The App A PWA
 - [ ] Dark Mode
 - [ ] SQL Injection Prevention
 - [ ] Security Testing

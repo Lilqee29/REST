@@ -24,6 +24,7 @@ connectDB();
 const allowedOrigins = [
   "http://localhost:5173",
   "http://localhost:2000",
+  "https://0m8gw799-5173.uks1.devtunnels.ms",
   "https://overpolemical-paulette-lymphangiomatous.ngrok-free.dev",
   "https://rest-psi-ten.vercel.app", // Your Vercel frontend
 ];
