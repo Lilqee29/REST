@@ -11,8 +11,8 @@ const stripe = new Stripe(process.env.STRIPE_SECRET_KEY);
 // placing user order for frontend
 // placing user order for frontend
 const placeOrder = async (req, res) => {
-  const success_url = "http://localhost:5173/cart"; // ✅ CHANGED: redirect to cart first
-  const cancel_url = "http://localhost:5173/cart";
+  const success_url = "https://0m8gw799-5173.uks1.devtunnels.ms/cart"; // ✅ CHANGED: redirect to cart first
+  const cancel_url = "https://0m8gw799-5173.uks1.devtunnels.ms/cart";
 
   try {
     const { userId, items, amount, address, promoCode } = req.body;
