@@ -43,6 +43,7 @@ const placeOrder = async (req, res) => {
       },
     ];
 
+    
     const session = await stripe.checkout.sessions.create({
       line_items,
       mode: "payment",
