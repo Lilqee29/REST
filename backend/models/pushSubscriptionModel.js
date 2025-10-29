@@ -6,7 +6,7 @@ const pushSubscriptionSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'user',
       required: true,
-      index: true,
+      // ❌ REMOVED: index: true  (this creates userId_1 index which prevents multiple devices)
     },
     subscription: {
       endpoint: { type: String, required: true },
@@ -16,14 +16,14 @@ const pushSubscriptionSchema = new mongoose.Schema(
         auth: { type: String, required: true },
       },
     },
-    lastActiveAt: { type: Date, default: Date.now }, // NEW
+    lastActiveAt: { type: Date, default: Date.now },
     createdAt: { type: Date, default: Date.now },
     updatedAt: { type: Date, default: Date.now },
   },
   { timestamps: true }
 );
 
-// Prevent duplicates
+// ✅ ONLY THIS INDEX: Allows multiple devices per user, but prevents duplicate endpoints
 pushSubscriptionSchema.index({ userId: 1, 'subscription.endpoint': 1 }, { unique: true });
 
 // Update updatedAt on save

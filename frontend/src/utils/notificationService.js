@@ -50,7 +50,11 @@ class NotificationService {
 
     try {
       const existing = await navigator.serviceWorker.getRegistration('/');
-      if (existing) return existing;
+      if (existing) {
+        // Force update to ensure latest SW
+        await existing.update();
+        return existing;
+      }
 
       const registration = await navigator.serviceWorker.register('/service-worker.js', {
         scope: '/',
@@ -80,29 +84,56 @@ class NotificationService {
   }
 
   // Subscribe or refresh existing subscription
-  async subscribe(vapidPublicKey, userId, token) {
+  async subscribe(vapidPublicKey, userId, token, forceNew = false) {
     if (!this.isSupported) return false;
 
     try {
       const registration = await navigator.serviceWorker.ready;
       let subscription = await registration.pushManager.getSubscription();
 
-      if (subscription) {
-        console.log('✅ Existing subscription found, refreshing lastActiveAt');
+      // 🔥 CRITICAL FIX: Unsubscribe old subscription and create fresh one on reinstall
+      if (subscription && forceNew) {
+        console.log('🔄 Force refresh: Removing old subscription...');
+        try {
+          await subscription.unsubscribe();
+          subscription = null;
+        } catch (err) {
+          console.warn('⚠️ Failed to unsubscribe old subscription:', err);
+          subscription = null;
+        }
+      }
+
+      // Try to verify existing subscription with backend
+      if (subscription && !forceNew) {
+        console.log('✅ Existing subscription found, verifying with backend...');
+        try {
+          await this.sendSubscriptionToBackend(subscription, userId, token);
+          this.isSubscribed = true;
+          return true;
+        } catch (error) {
+          console.warn('⚠️ Backend rejected subscription, creating new one:', error.message);
+          // If backend rejects, unsubscribe and create new
+          try {
+            await subscription.unsubscribe();
+          } catch (e) {
+            console.warn('Failed to unsubscribe:', e);
+          }
+          subscription = null;
+        }
+      }
+
+      // Create new subscription
+      if (!subscription) {
+        console.log('📝 Creating new subscription...');
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
+        });
+
         await this.sendSubscriptionToBackend(subscription, userId, token);
         this.isSubscribed = true;
         return true;
       }
-
-      console.log('📝 Creating new subscription...');
-      subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: this.urlBase64ToUint8Array(vapidPublicKey)
-      });
-
-      await this.sendSubscriptionToBackend(subscription, userId, token);
-      this.isSubscribed = true;
-      return true;
 
     } catch (error) {
       console.error('❌ Subscription failed:', error);
@@ -139,12 +170,17 @@ class NotificationService {
       const subscription = await registration.pushManager.getSubscription();
       if (!subscription) return;
 
+      const endpoint = subscription.endpoint;
       await subscription.unsubscribe();
 
       const apiUrl = import.meta.env.VITE_API_URL || 'https://restaurant-backend-06ce.onrender.com';
       await fetch(`${apiUrl}/api/notifications/unsubscribe`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+        headers: { 
+          'Content-Type': 'application/json', 
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ endpoint })
       });
 
       this.isSubscribed = false;
