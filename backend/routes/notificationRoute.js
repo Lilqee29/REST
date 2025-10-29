@@ -21,29 +21,41 @@ router.post('/subscribe', auth, async (req, res) => {
     if (!subscription?.endpoint)
       return res.status(400).json({ success: false, message: 'Invalid subscription' });
 
-    // ✅ Find existing subscription
-    const existing = await PushSubscription.findOne({
-      userId: req.user.id,
-      'subscription.endpoint': subscription.endpoint,
-    });
-
-    if (existing) {
-      // Refresh lastActiveAt if already exists
-      existing.lastActiveAt = new Date();
-      await existing.save();
-      console.log(`ℹ️ Subscription refreshed for user ${req.user.id}`);
-    } else {
-      await PushSubscription.create({
+    // ✅ Use findOneAndUpdate with upsert to handle duplicates gracefully
+    await PushSubscription.findOneAndUpdate(
+      {
         userId: req.user.id,
-        subscription,
-        lastActiveAt: new Date(),
-      });
-      console.log(`✅ New subscription saved for user ${req.user.id}`);
-    }
+        'subscription.endpoint': subscription.endpoint,
+      },
+      {
+        $set: {
+          userId: req.user.id,
+          subscription: subscription,
+          lastActiveAt: new Date(),
+          updatedAt: new Date(),
+        },
+        $setOnInsert: {
+          createdAt: new Date(),
+        }
+      },
+      {
+        upsert: true, // Create if doesn't exist
+        new: true,
+        runValidators: true,
+      }
+    );
 
+    console.log(`✅ Subscription saved/updated for user ${req.user.id}`);
     res.json({ success: true, message: 'Subscription saved successfully' });
   } catch (err) {
     console.error('❌ Error saving subscription:', err);
+    
+    // Handle duplicate key errors gracefully
+    if (err.code === 11000) {
+      console.log('⚠️ Duplicate subscription detected, treating as success');
+      return res.json({ success: true, message: 'Subscription already exists' });
+    }
+    
     res.status(500).json({ success: false, message: 'Error saving subscription' });
   }
 });
@@ -89,28 +101,40 @@ router.post('/notify-order-status', async (req, res) => {
       data: { orderId, status, itemsCount: items?.length || 0, url: '/myorders' }
     });
 
+    let successCount = 0;
+    let failCount = 0;
+
     // 🔁 Send notifications
     await Promise.all(subscriptions.map(async subData => {
       try {
         await webpush.sendNotification(subData.subscription, payload);
-        console.log(`✅ Notification sent to ${subData.subscription.endpoint}`);
+        console.log(`✅ Notification sent to ${subData.subscription.endpoint.slice(-20)}`);
 
         // ✅ Refresh lastActiveAt after successful send
-        subData.lastActiveAt = new Date();
-        await subData.save();
+        await PushSubscription.updateOne(
+          { _id: subData._id },
+          { $set: { lastActiveAt: new Date() } }
+        );
+        successCount++;
 
       } catch (err) {
-        console.error(`❌ Failed for ${subData.subscription.endpoint}:`, err.message);
+        console.error(`❌ Failed for ${subData.subscription.endpoint.slice(-20)}:`, err.message);
+        failCount++;
 
-        // Remove expired/unsubscribed endpoints
-        if (err.statusCode === 410) {
+        // Remove expired/unsubscribed endpoints (410 = Gone)
+        if (err.statusCode === 410 || err.statusCode === 404) {
           await PushSubscription.deleteOne({ _id: subData._id });
-          console.log(`🗑️ Removed expired subscription for endpoint: ${subData.subscription.endpoint}`);
+          console.log(`🗑️ Removed invalid subscription: ${subData.subscription.endpoint.slice(-20)}`);
         }
       }
     }));
 
-    res.json({ success: true, message: 'Notification sent to all devices' });
+    console.log(`📊 Sent: ${successCount}, Failed: ${failCount}`);
+    res.json({ 
+      success: true, 
+      message: `Notifications sent: ${successCount} succeeded, ${failCount} failed`,
+      stats: { successCount, failCount, total: subscriptions.length }
+    });
   } catch (err) {
     console.error('❌ Error sending notifications:', err.message);
     res.status(500).json({ success: false, message: 'Error sending notification', error: err.message });
@@ -126,7 +150,12 @@ router.post('/unsubscribe', auth, async (req, res) => {
     const { endpoint } = req.body;
     if (!endpoint) return res.status(400).json({ success: false, message: 'Endpoint is required' });
 
-    await PushSubscription.deleteOne({ userId: req.user.id, 'subscription.endpoint': endpoint });
+    const result = await PushSubscription.deleteOne({ 
+      userId: req.user.id, 
+      'subscription.endpoint': endpoint 
+    });
+    
+    console.log(`🗑️ Unsubscribe result: ${result.deletedCount} subscription(s) removed`);
     res.json({ success: true, message: 'Device unsubscribed successfully' });
   } catch (err) {
     console.error('❌ Error unsubscribing:', err);
@@ -135,7 +164,30 @@ router.post('/unsubscribe', auth, async (req, res) => {
 });
 
 /* ========================================================
-   🧪 4️⃣ TEST: Send a sample notification manually
+   🔵 4️⃣ CLEANUP: Remove all stale subscriptions for user
+======================================================== */
+router.post('/cleanup-subscriptions', auth, async (req, res) => {
+  try {
+    // Remove subscriptions older than 7 days for this user
+    const cutoff = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    const result = await PushSubscription.deleteMany({ 
+      userId: req.user.id,
+      lastActiveAt: { $lt: cutoff }
+    });
+    
+    console.log(`🧹 Cleaned up ${result.deletedCount} stale subscriptions for user ${req.user.id}`);
+    res.json({ 
+      success: true, 
+      message: `Removed ${result.deletedCount} inactive subscriptions` 
+    });
+  } catch (err) {
+    console.error('❌ Error cleaning subscriptions:', err);
+    res.status(500).json({ success: false, message: 'Error cleaning subscriptions' });
+  }
+});
+
+/* ========================================================
+   🧪 5️⃣ TEST: Send a sample notification manually
 ======================================================== */
 router.post('/test', async (req, res) => {
   try {

@@ -4,13 +4,13 @@ import { useNotifications } from '../hooks/useNotifications';
 const EnableNotifications = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(null);
+  const [success, setSuccess] = useState(false); // ✅ new state
 
-  const { isSupported, isSubscribed, permission, showNotification } = useNotifications();
+  const { isSubscribed, permission, showNotification } = useNotifications();
 
   // Detect iOS Safari
   const isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone;
-
   if (isIOS && !isStandalone) return null; // Only show in installed PWA on iOS
 
   const handleEnable = async () => {
@@ -29,6 +29,10 @@ const EnableNotifications = () => {
 
       // Show test notification
       await showNotification?.();
+
+      // ✅ Set success and remove after 2s
+      setSuccess(true);
+      setTimeout(() => setSuccess(false), 2000);
 
     } catch (err) {
       console.error('❌ Error enabling notifications:', err);
@@ -102,6 +106,19 @@ const EnableNotifications = () => {
           fontSize: '13px'
         }}>
           ⚠️ {error}
+        </div>
+      )}
+
+      {success && (
+        <div style={{
+          marginTop: '15px',
+          padding: '10px',
+          background: '#dcfce7',
+          color: '#166534',
+          borderRadius: '6px',
+          fontSize: '13px'
+        }}>
+          ✅ Notifications Enabled!
         </div>
       )}
     </div>

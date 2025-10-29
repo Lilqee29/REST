@@ -4,6 +4,13 @@ import { toast } from "react-toastify";
 
 export const StoreContext = createContext(null);
 
+// Helper to show a single overriding toast
+let currentToast = null;
+const showToast = (message, type = "info") => {
+  if (currentToast) toast.dismiss(currentToast);
+  currentToast = toast[type](message, { autoClose: 2000 });
+};
+
 const StoreContextProvider = (props) => {
   const [cartItems, setCartItems] = useState({});
   const [customizedCartItems, setCustomizedCartItems] = useState([]);
@@ -12,7 +19,7 @@ const StoreContextProvider = (props) => {
   const [token, setToken] = useState("");
   const [userId, setUserId] = useState("");
 
-  const url = "https://restaurant-backend-06ce.onrender.com"; // backend URL
+  const url = "https://restaurant-backend-06ce.onrender.com";
 
   // ---- CART LOGIC ----
   const addToCart = async (itemId) => {
@@ -26,13 +33,13 @@ const StoreContextProvider = (props) => {
           { headers: { token } }
         );
         response.data.success
-          ? toast.success("Item added to cart")
-          : toast.error("Something went wrong");
+          ? showToast("Item added to cart", "success")
+          : showToast("Something went wrong", "error");
       } catch (err) {
-        toast.error("Something went wrong");
+        showToast("Something went wrong", "error");
       }
     } else {
-      toast.success("Item added to cart");
+      showToast("Item added to cart", "success");
     }
   };
 
@@ -47,26 +54,25 @@ const StoreContextProvider = (props) => {
           { headers: { token } }
         );
         response.data.success
-          ? toast.success("Item removed from cart")
-          : toast.error("Something went wrong");
+          ? showToast("Item removed from cart", "warning")
+          : showToast("Something went wrong", "error");
       } catch (err) {
-        toast.error("Something went wrong");
+        showToast("Something went wrong", "error");
       }
     } else {
-      toast.success("Item removed from cart");
+      showToast("Item removed from cart", "warning");
     }
   };
 
   const addCustomizedToCart = (customizedItem) => {
     const customId = `custom_${Date.now()}_${customizedItem._id}`;
     setCustomizedCartItems(prev => [...prev, { ...customizedItem, customId, quantity: 1 }]);
-    toast.success("Customized item added to cart");
-    // TODO: save to backend if logged in
+    showToast("Customized item added to cart", "success");
   };
 
   const removeCustomizedFromCart = (customId) => {
     setCustomizedCartItems(prev => prev.filter(item => item.customId !== customId));
-    toast.success("Customized item removed from cart");
+    showToast("Customized item removed from cart", "warning");
   };
 
   const updateCustomizedItemQuantity = (customId, change) => {
@@ -116,7 +122,7 @@ const StoreContextProvider = (props) => {
       const response = await axios.get(url + "/api/food/list");
       if (response.data.success) setFoodList(response.data.data);
     } catch (err) {
-      toast.error("Could not load menu items");
+      showToast("Could not load menu items", "error");
     }
   };
 
@@ -133,7 +139,6 @@ const StoreContextProvider = (props) => {
     }
   };
 
-  // Fetch user data to get userId
   const fetchUserData = async (token) => {
     try {
       const response = await axios.get(url + "/api/user/me", { headers: { token } });
@@ -145,7 +150,6 @@ const StoreContextProvider = (props) => {
     }
   };
 
-  // ---- PERSIST TOKEN + CART ON RELOAD ----
   useEffect(() => {
     async function loadData() {
       await fetchFoodList();
