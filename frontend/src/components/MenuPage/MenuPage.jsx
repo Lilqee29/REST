@@ -1,7 +1,7 @@
 /* eslint-disable react/prop-types */
 import "./MenuPage.css";
 import { menu_list, assets } from "../../assets/frontend_assets/assets";
-import { Search, Star, ShoppingCart, Heart } from "lucide-react";
+import { Search, Star, ShoppingCart, Heart, X } from "lucide-react";
 import { useState, useEffect, useContext } from "react";
 import axios from "axios";
 import { StoreContext } from "../../context/StoreContext";
@@ -12,6 +12,7 @@ export default function Menu() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [selectedItem, setSelectedItem] = useState(null);
 
   const { cartItems, addToCart, removeFromCart } = useContext(StoreContext);
 
@@ -69,7 +70,7 @@ export default function Menu() {
       </div>
 
       {/* Categories */}
-      <div className="flex gap-4 overflow-x-auto  mb-8 px-2 sm:px-4" id="Categories">
+      <div className="flex gap-4 overflow-x-auto mb-8 px-2 sm:px-4" id="Categories">
         <div
           onClick={() => setCategory("All")}
           className="flex flex-col items-center flex-shrink-0 cursor-pointer"
@@ -112,29 +113,30 @@ export default function Menu() {
       )}
       {error && <p className="text-red-500 text-center py-10">{error}</p>}
 
+      {/* Name of the category */}
+      <div className="mb-3">
+        <h2 className="text-xl font-bold">
+          {category}
+        </h2>
+      </div>
 
-       {/* Name of the category*/}
-        <div className="mb-3">
-          <h2 className="text-1xl font-bold">
-            {category}
-          </h2>
-        </div>
-
-
-
-      {/* Menu Grid */}
+      {/* Menu Grid - NOW USING CSS CLASS */}
       {!loading && !error && (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 lg:gap-8">
+        <div className="menu-items-grid">
           {filteredItems.length === 0 ? (
             <p className="col-span-full text-center py-10 text-gray-600">
               Aucun plat trouvé. Veuillez essayer une autre recherche.
             </p>
           ) : (
             filteredItems.map((item) => (
-              <div
-                key={item._id}
-                className="group bg-white rounded-2xl shadow-md overflow-hidden hover:shadow-xl transition-transform transform hover:-translate-y-1"
-              >
+                <div
+                  key={item._id}
+                  className="menu-card"
+                  onClick={() => {
+                    if (window.innerWidth <= 768) setSelectedItem(item); // only open modal on mobile
+                  }}
+                >
+
                 {/* Image */}
                 <div className="relative w-full h-48 sm:h-52 md:h-56 overflow-hidden">
                   <img
@@ -164,7 +166,7 @@ export default function Menu() {
                 </div>
 
                 {/* Content */}
-                <div className="p-3 sm:p-4 flex flex-col justify-between">
+                <div className="menu-card-content">
                   <div>
                     <h3 className="text-gray-900 font-bold text-lg sm:text-xl mb-1 sm:mb-2 group-hover:text-red-600 transition-colors">
                       {item.name}

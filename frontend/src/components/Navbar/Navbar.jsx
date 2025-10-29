@@ -1,30 +1,36 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useState, useEffect } from "react";
 import { assets } from "../../assets/frontend_assets/assets";
-import { Link, useNavigate,useLocation} from "react-router-dom";
+import { Link, useNavigate, useLocation } from "react-router-dom";
 import { StoreContext } from "../../context/StoreContext";
 import { toast } from "react-toastify";
-import { Menu, X } from 'lucide-react';import PWAInstallButton from '../PWAInstallButton/PWAInstallButton';
-
-
+import { Menu, X } from 'lucide-react';
+import PWAInstallButton from '../PWAInstallButton/PWAInstallButton';
 
 const Navbar = ({ setShowLogin }) => {
   const [menu, setMenu] = useState("home");
   const [showDropdown, setShowDropdown] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [isInstalled, setIsInstalled] = useState(false);
+  
   const { getTotalCartAmount, token, setToken } = useContext(StoreContext);
   const navigate = useNavigate();
-
   const location = useLocation();
 
-// Sync active menu with current URL on first render and when path changes
-React.useEffect(() => {
-  if (location.pathname === "/") setMenu("home");
-  else if (location.pathname === "/menu") setMenu("menu");
-  else if (location.pathname === "/map") setMenu("map");
-  else if (location.pathname === "/myorders") setMenu("order");
-  else setMenu(""); // default for pages not listed
-}, [location.pathname]);
+  // Check if PWA is installed
+  useEffect(() => {
+    const checkInstalled = window.matchMedia('(display-mode: standalone)').matches || 
+                          window.navigator.standalone === true;
+    setIsInstalled(checkInstalled);
+  }, []);
 
+  // Sync active menu with current URL
+  React.useEffect(() => {
+    if (location.pathname === "/") setMenu("home");
+    else if (location.pathname === "/menu") setMenu("menu");
+    else if (location.pathname === "/map") setMenu("map");
+    else if (location.pathname === "/myorders") setMenu("order");
+    else setMenu("");
+  }, [location.pathname]);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -44,91 +50,242 @@ React.useEffect(() => {
   const hasCartItems = getTotalCartAmount() > 0;
 
   return (
-    <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 shadow-sm">
+    <nav 
+      className="ios-navbar"
+      style={{
+        position: 'sticky',
+        top: 0,
+        zIndex: 50,
+        backgroundColor: 'white',
+        borderBottom: '1px solid #e5e7eb',
+        boxShadow: '0 1px 3px rgba(0,0,0,0.1)',
+        paddingTop: 'max(0.5rem, env(safe-area-inset-top))',
+        paddingLeft: 'env(safe-area-inset-left)',
+        paddingRight: 'env(safe-area-inset-right)',
+      }}
+    >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-20">
+        <div 
+          className="flex justify-between items-center"
+          style={{
+            minHeight: '60px',
+            height: 'auto'
+          }}
+        >
           
-          {/* Logo */}
+          {/* Logo - Always visible */}
           <div className="flex-shrink-0">
             <Link to="/">
-              <img src={assets.logo} alt="Logo" className="h-16 w-auto" />
+              <img 
+                src={assets.logo} 
+                alt="Logo" 
+                style={{
+                  height: '50px',
+                  width: 'auto'
+                }}
+              />
             </Link>
           </div>
 
-          {/* Desktop Menu */}
+          {/* Desktop Menu - Hidden on mobile */}
           <div className="hidden md:flex items-center space-x-8">
             {menuItems.map((item) => (
               <Link
                 key={item.id}
                 to={item.path}
                 onClick={() => setMenu(item.id)}
-                className={`text-base font-medium transition-all duration-200 relative ${
-                  menu === item.id
-                    ? 'text-gray-900'
-                    : 'text-gray-600 hover:text-gray-900'
-                }`}
+                style={{
+                  fontSize: '16px',
+                  fontWeight: 500,
+                  color: menu === item.id ? '#111827' : '#6b7280',
+                  textDecoration: 'none',
+                  position: 'relative',
+                  transition: 'color 0.2s'
+                }}
               >
                 {item.label}
                 {menu === item.id && (
-                  <span className="absolute -bottom-[21px] left-0 right-0 h-0.5 bg-gray-900"></span>
+                  <span style={{
+                    position: 'absolute',
+                    bottom: '-20px',
+                    left: 0,
+                    right: 0,
+                    height: '2px',
+                    backgroundColor: '#111827'
+                  }}></span>
                 )}
               </Link>
             ))}
           </div>
 
-          {/* Right Side Actions */}
-          <div className="flex items-center space-x-6">
+          {/* Right Side - Cart + Hamburger on mobile, more on desktop */}
+          <div 
+            className="flex items-center"
+            style={{
+              gap: '12px'
+            }}
+          >
             
-            {/* Search Icon */}
-            <button className="hidden sm:flex hover:opacity-70 transition-opacity">
-              <img src={assets.search_icon} alt="Search" className="w-5 h-5" />
+            {/* Desktop only: Search + PWA Install + Profile/Sign In */}
+            <button 
+              className="hidden md:flex"
+              style={{
+                background: 'transparent',
+                border: 'none',
+                padding: '8px',
+                cursor: 'pointer',
+                opacity: 0.7,
+                transition: 'opacity 0.2s'
+              }}
+            >
+              <img 
+                src={assets.search_icon} 
+                alt="Search"
+                style={{
+                  width: '22px',
+                  height: '22px'
+                }}
+              />
             </button>
 
-            {/* Cart */}
-            <Link to="/cart" className="relative hover:opacity-70 transition-opacity">
-              <img src={assets.basket_icon} alt="Cart" className="w-5 h-5" />
+            {/* Cart - Always visible */}
+            <Link 
+              to="/cart"
+              style={{
+                position: 'relative',
+                padding: '8px',
+                textDecoration: 'none'
+              }}
+            >
+              <img 
+                src={assets.basket_icon} 
+                alt="Cart"
+                style={{
+                  width: '26px',
+                  height: '26px'
+                }}
+              />
               {hasCartItems && (
-                <span className="absolute -top-2 -right-2 bg-red-600 text-white text-xs font-semibold rounded-full h-4 w-4 flex items-center justify-center">
-                  •
+                <span style={{
+                  position: 'absolute',
+                  top: '2px',
+                  right: '2px',
+                  backgroundColor: '#dc2626',
+                  color: 'white',
+                  borderRadius: '50%',
+                  width: '18px',
+                  height: '18px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  fontSize: '10px',
+                  fontWeight: 'bold'
+                }}>
+                  {getTotalCartAmount() > 0 ? '•' : ''}
                 </span>
               )}
             </Link>
-              {/* PWA Install Button */} 
-           <PWAInstallButton />
-            {/* User Profile / Sign In */}
+              
+            {/* PWA Install Button - Desktop only, only if NOT installed */}
+            {!isInstalled && (
+              <div className="hidden md:block">
+                <PWAInstallButton />
+              </div>
+            )}
+
+            {/* User Profile / Sign In - Desktop only */}
             {token ? (
-              <div className="relative">
+              <div className="hidden md:block" style={{ position: 'relative' }}>
                 <button
                   onClick={() => setShowDropdown(!showDropdown)}
-                  className="hover:opacity-70 transition-opacity"
+                  style={{
+                    background: 'transparent',
+                    border: 'none',
+                    padding: '4px',
+                    cursor: 'pointer'
+                  }}
                 >
-                  <img src={assets.profile_icon} alt="Profile" className="w-8 h-8 rounded-full" />
+                  <img 
+                    src={assets.profile_icon} 
+                    alt="Profile"
+                    style={{
+                      width: '36px',
+                      height: '36px',
+                      borderRadius: '50%'
+                    }}
+                  />
                 </button>
 
-                {/* Dropdown */}
                 {showDropdown && (
                   <>
                     <div 
-                      className="fixed inset-0 z-10" 
+                      style={{
+                        position: 'fixed',
+                        inset: 0,
+                        zIndex: 10
+                      }}
                       onClick={() => setShowDropdown(false)}
                     ></div>
-                    <div className="absolute right-0 mt-3 w-48 bg-white rounded-md shadow-lg border border-gray-200 py-1 z-20">
+                    <div style={{
+                      position: 'absolute',
+                      right: 0,
+                      marginTop: '12px',
+                      width: '200px',
+                      backgroundColor: 'white',
+                      borderRadius: '8px',
+                      boxShadow: '0 10px 25px rgba(0,0,0,0.1)',
+                      border: '1px solid #e5e7eb',
+                      padding: '8px',
+                      zIndex: 20
+                    }}>
                       <button
                         onClick={() => {
                           navigate("/profile");
                           setShowDropdown(false);
                         }}
-                        className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        style={{
+                          width: '100%',
+                          padding: '14px 16px',
+                          textAlign: 'left',
+                          fontSize: '15px',
+                          color: '#374151',
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                       >
-                        <img src={assets.bag_icon} alt="" className="w-4 h-4" />
+                        <img src={assets.bag_icon} alt="" style={{ width: '18px', height: '18px' }} />
                         <span>Profile</span>
                       </button>
-                      <div className="border-t border-gray-100 my-1"></div>
+                      <div style={{ borderTop: '1px solid #f3f4f6', margin: '4px 0' }}></div>
                       <button
                         onClick={logout}
-                        className="w-full px-4 py-2.5 text-left text-sm text-gray-700 hover:bg-gray-50 transition-colors flex items-center gap-3"
+                        style={{
+                          width: '100%',
+                          padding: '14px 16px',
+                          textAlign: 'left',
+                          fontSize: '15px',
+                          color: '#374151',
+                          background: 'transparent',
+                          border: 'none',
+                          borderRadius: '6px',
+                          cursor: 'pointer',
+                          display: 'flex',
+                          alignItems: 'center',
+                          gap: '12px',
+                          transition: 'background 0.2s'
+                        }}
+                        onMouseEnter={(e) => e.target.style.backgroundColor = '#f9fafb'}
+                        onMouseLeave={(e) => e.target.style.backgroundColor = 'transparent'}
                       >
-                        <img src={assets.logout_icon} alt="" className="w-4 h-4" />
+                        <img src={assets.logout_icon} alt="" style={{ width: '18px', height: '18px' }} />
                         <span>Logout</span>
                       </button>
                     </div>
@@ -138,21 +295,40 @@ React.useEffect(() => {
             ) : (
               <button
                 onClick={() => setShowLogin(true)}
-                className="hidden sm:block px-6 py-2.5 bg-gray-900 text-white text-sm font-medium rounded-md hover:bg-gray-800 transition-colors"
+                className="hidden md:block"
+                style={{
+                  padding: '10px 24px',
+                  backgroundColor: '#111827',
+                  color: 'white',
+                  fontSize: '15px',
+                  fontWeight: 600,
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer',
+                  transition: 'background 0.2s'
+                }}
               >          
                 Sign In
               </button>
             )}
            
-            {/* Mobile Menu Button */}
+            {/* Mobile Menu Button - Only on mobile */}
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 hover:bg-gray-100 rounded-md transition-colors"
+              className="md:hidden"
+              style={{
+                padding: '10px',
+                background: 'transparent',
+                border: 'none',
+                borderRadius: '8px',
+                cursor: 'pointer',
+                transition: 'background 0.2s'
+              }}
             >
               {mobileMenuOpen ? (
-                <X size={24} className="text-gray-700" />
+                <X size={28} style={{ color: '#374151' }} />
               ) : (
-                <Menu size={24} className="text-gray-700" />
+                <Menu size={28} style={{ color: '#374151' }} />
               )}
             </button>
           </div>
@@ -161,8 +337,16 @@ React.useEffect(() => {
 
       {/* Mobile Menu */}
       {mobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
-          <div className="px-4 py-4 space-y-1">
+        <div 
+          className="md:hidden"
+          style={{
+            backgroundColor: 'white',
+            borderTop: '1px solid #e5e7eb',
+            paddingBottom: 'env(safe-area-inset-bottom)'
+          }}
+        >
+          <div style={{ padding: '16px' }}>
+            {/* Menu Items */}
             {menuItems.map((item) => (
               <Link
                 key={item.id}
@@ -171,38 +355,76 @@ React.useEffect(() => {
                   setMenu(item.id);
                   setMobileMenuOpen(false);
                 }}
-                className={`block px-4 py-3 rounded-md text-base font-medium transition-colors ${
-                  menu === item.id
-                    ? 'bg-gray-100 text-gray-900'
-                    : 'text-gray-600 hover:bg-gray-50 hover:text-gray-900'
-                }`}
+                style={{
+                  display: 'block',
+                  padding: '16px',
+                  borderRadius: '8px',
+                  fontSize: '17px',
+                  fontWeight: 500,
+                  color: menu === item.id ? '#111827' : '#6b7280',
+                  backgroundColor: menu === item.id ? '#f3f4f6' : 'transparent',
+                  textDecoration: 'none',
+                  marginBottom: '4px',
+                  transition: 'background 0.2s'
+                }}
               >
                 {item.label}
               </Link>
             ))}
             
+            {/* Sign In Button - Mobile */}
             {!token && (
               <button
                 onClick={() => {
                   setShowLogin(true);
                   setMobileMenuOpen(false);
                 }}
-                className="w-full mt-3 px-6 py-3 bg-gray-900 text-white font-medium rounded-md hover:bg-gray-800 transition-colors"
+                style={{
+                  width: '100%',
+                  marginTop: '12px',
+                  padding: '14px 24px',
+                  backgroundColor: '#111827',
+                  color: 'white',
+                  fontWeight: 600,
+                  fontSize: '16px',
+                  borderRadius: '8px',
+                  border: 'none',
+                  cursor: 'pointer'
+                }}
               >
                 Sign In
               </button>
             )}
 
+            {/* Profile/Logout - Mobile */}
             {token && (
-              <div className="pt-3 mt-3 border-t border-gray-200 space-y-1">
+              <div style={{
+                paddingTop: '12px',
+                marginTop: '12px',
+                borderTop: '1px solid #e5e7eb'
+              }}>
                 <button
                   onClick={() => {
                     navigate("/profile");
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    color: '#374151',
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s',
+                    marginBottom: '4px'
+                  }}
                 >
-                  <img src={assets.bag_icon} alt="" className="w-4 h-4" />
+                  <img src={assets.bag_icon} alt="" style={{ width: '20px', height: '20px' }} />
                   <span>Profile</span>
                 </button>
                 <button
@@ -210,9 +432,22 @@ React.useEffect(() => {
                     logout();
                     setMobileMenuOpen(false);
                   }}
-                  className="w-full flex items-center gap-3 px-4 py-3 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                  style={{
+                    width: '100%',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '12px',
+                    padding: '16px',
+                    borderRadius: '8px',
+                    color: '#374151',
+                    background: 'transparent',
+                    border: 'none',
+                    fontSize: '16px',
+                    cursor: 'pointer',
+                    transition: 'background 0.2s'
+                  }}
                 >
-                  <img src={assets.logout_icon} alt="" className="w-4 h-4" />
+                  <img src={assets.logout_icon} alt="" style={{ width: '20px', height: '20px' }} />
                   <span>Logout</span>
                 </button>
               </div>

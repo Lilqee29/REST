@@ -21,17 +21,24 @@ router.post('/subscribe', auth, async (req, res) => {
     if (!subscription?.endpoint)
       return res.status(400).json({ success: false, message: 'Invalid subscription' });
 
-    // Check if this endpoint already exists for the user
+    // ✅ Find existing subscription
     const existing = await PushSubscription.findOne({
       userId: req.user.id,
-      'subscription.endpoint': subscription.endpoint
+      'subscription.endpoint': subscription.endpoint,
     });
 
-    if (!existing) {
-      await PushSubscription.create({ userId: req.user.id, subscription });
-      console.log(`✅ New subscription saved for user ${req.user.id}`);
+    if (existing) {
+      // Refresh lastActiveAt if already exists
+      existing.lastActiveAt = new Date();
+      await existing.save();
+      console.log(`ℹ️ Subscription refreshed for user ${req.user.id}`);
     } else {
-      console.log(`ℹ️ Subscription already exists for this endpoint`);
+      await PushSubscription.create({
+        userId: req.user.id,
+        subscription,
+        lastActiveAt: new Date(),
+      });
+      console.log(`✅ New subscription saved for user ${req.user.id}`);
     }
 
     res.json({ success: true, message: 'Subscription saved successfully' });
@@ -41,12 +48,17 @@ router.post('/subscribe', auth, async (req, res) => {
   }
 });
 
+
 /* ========================================================
    🟡 2️⃣ NOTIFY ORDER STATUS: Send to all user devices
 ======================================================== */
 router.post('/notify-order-status', async (req, res) => {
   try {
     const { userId, orderId, status, items } = req.body;
+
+    // ✅ Remove stale subscriptions older than 60 days
+    const cutoff = new Date(Date.now() - 60 * 24 * 60 * 60 * 1000);
+    await PushSubscription.deleteMany({ lastActiveAt: { $lt: cutoff } });
 
     const subscriptions = await PushSubscription.find({ userId });
     if (!subscriptions.length)
@@ -77,13 +89,20 @@ router.post('/notify-order-status', async (req, res) => {
       data: { orderId, status, itemsCount: items?.length || 0, url: '/myorders' }
     });
 
-    // 🔁 Send to all devices and clean up expired subscriptions
+    // 🔁 Send notifications
     await Promise.all(subscriptions.map(async subData => {
       try {
         await webpush.sendNotification(subData.subscription, payload);
         console.log(`✅ Notification sent to ${subData.subscription.endpoint}`);
+
+        // ✅ Refresh lastActiveAt after successful send
+        subData.lastActiveAt = new Date();
+        await subData.save();
+
       } catch (err) {
         console.error(`❌ Failed for ${subData.subscription.endpoint}:`, err.message);
+
+        // Remove expired/unsubscribed endpoints
         if (err.statusCode === 410) {
           await PushSubscription.deleteOne({ _id: subData._id });
           console.log(`🗑️ Removed expired subscription for endpoint: ${subData.subscription.endpoint}`);
@@ -97,6 +116,7 @@ router.post('/notify-order-status', async (req, res) => {
     res.status(500).json({ success: false, message: 'Error sending notification', error: err.message });
   }
 });
+
 
 /* ========================================================
    🔴 3️⃣ UNSUBSCRIBE: Remove only the current device
